@@ -1,0 +1,31 @@
+@model List<MovieDto>
+@{
+    ViewData["Title"] = "Películas";
+}
+
+<h1>Películas</h1>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var movie in Model)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <img src="@movie.ImagenUrl" class="card-img-top" alt="@movie.Titulo" style="height: 300px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@movie.Titulo</h5>
+                    <p class="card-text">@movie.Descripcion</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>Director:</strong> @movie.Director<br />
+                            <strong>Año:</strong> @movie.Anio<br />
+                            <strong>Género:</strong> @movie.GeneroNombre
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.PeliculaId" class="btn btn-primary">Ver detalles</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,41 @@
+@model PostCreateVM
+@{
+    ViewData["Title"] = "Crear Publicación";
+}
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4>Crear nueva publicación</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="PeliculaId" class="form-label">Película</label>
+                        <select asp-for="PeliculaId" asp-items="Model.Peliculas" class="form-select">
+                            <option value="">-- Selecciona una película --</option>
+                        </select>
+                        <span asp-validation-for="PeliculaId" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Texto" class="form-label">¿Qué opinas sobre esta película?</label>
+                        <textarea asp-for="Texto" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Texto" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
