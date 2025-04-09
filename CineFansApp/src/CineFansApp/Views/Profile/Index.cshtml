@@ -1,0 +1,76 @@
+@model ProfileVM
+@{
+    ViewData["Title"] = Model.User.Nombre;
+}
+
+<div class="profile-header">
+    <img src="@Model.User.FotoPerfil" onerror="this.src='/images/users/default.jpg'" alt="@Model.User.Nombre" class="profile-avatar">
+    <div class="profile-info">
+        <div class="d-flex align-items-center mb-3">
+            <h1 class="profile-username me-3">@Model.User.Nombre</h1>
+            @if (User.Identity.IsAuthenticated && !Model.IsCurrentUser)
+            {
+                if (Model.IsFollowing)
+                {
+                    <form asp-controller="Profile" asp-action="Unfollow" asp-route-id="@Model.User.UserId" method="post">
+                        <button type="submit" class="btn btn-outline-secondary">Dejar de seguir</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-controller="Profile" asp-action="Follow" asp-route-id="@Model.User.UserId" method="post">
+                        <button type="submit" class="btn btn-primary">Seguir</button>
+                    </form>
+                }
+            }
+            @if (Model.IsCurrentUser)
+            {
+                <a asp-controller="Account" asp-action="Edit" class="btn btn-outline-secondary ms-2">Editar perfil</a>
+            }
+        </div>
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="profile-stat-count">@Model.Posts.Count</span> publicaciones
+            </div>
+            <div class="profile-stat">
+                <a asp-controller="Profile" asp-action="Followers" asp-route-id="@Model.User.UserId" class="text-decoration-none text-dark">
+                    <span class="profile-stat-count">@Model.User.SeguidoresCount</span> seguidores
+                </a>
+            </div>
+            <div class="profile-stat">
+                <a asp-controller="Profile" asp-action="Following" asp-route-id="@Model.User.UserId" class="text-decoration-none text-dark">
+                    <span class="profile-stat-count">@Model.User.SiguiendoCount</span> seguidos
+                </a>
+            </div>
+        </div>
+        <div class="profile-bio">
+            <p>Miembro desde @Model.User.FechaRegistro.ToString("MMMM yyyy")</p>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<div class="profile-posts">
+    @if (Model.Posts != null && Model.Posts.Any())
+    {
+        foreach (var post in Model.Posts)
+        {
+            <div class="profile-post">
+                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.PublicacionId">
+                    <img src="@post.ImagenPelicula" alt="@post.TituloPelicula">
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center">
+            <p>No hay publicaciones para mostrar.</p>
+            @if (Model.IsCurrentUser)
+            {
+                <a asp-controller="Post" asp-action="Create" class="btn btn-primary">Crear primera publicación</a>
+            }
+        </div>
+    }
+</div>

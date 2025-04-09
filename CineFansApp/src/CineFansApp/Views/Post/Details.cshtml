@@ -1,0 +1,88 @@
+@model PostDto
+@{
+    ViewData["Title"] = "Detalles de la publicación";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="post-card">
+            <div class="post-header">
+                <img src="@Model.FotoPerfilUsuario" onerror="this.src='/images/users/default.jpg'" alt="@Model.NombreUsuario">
+                <div>
+                    <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UsuarioId">@Model.NombreUsuario</a>
+                </div>
+            </div>
+            <img src="@Model.ImagenPelicula" class="post-image" alt="@Model.TituloPelicula">
+            <div class="post-actions">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    if (Model.UserLiked)
+                    {
+                        <form asp-controller="Post" asp-action="Unlike" asp-route-id="@Model.PublicacionId" method="post" style="display: inline;">
+                            <button type="submit"><i class="fas fa-heart text-danger"></i></button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Post" asp-action="Like" asp-route-id="@Model.PublicacionId" method="post" style="display: inline;">
+                            <button type="submit"><i class="far fa-heart"></i></button>
+                        </form>
+                    }
+                }
+                else
+                {
+                    <i class="far fa-heart"></i>
+                }
+                <i class="far fa-comment ms-2"></i>
+            </div>
+            <div class="post-likes">
+                @Model.LikesCount me gusta
+            </div>
+            <div class="post-caption">
+                <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UsuarioId">@Model.NombreUsuario</a>
+                <span>@Model.Texto</span>
+            </div>
+            <div class="post-caption">
+                <span>Película: </span>
+                <a asp-controller="Movie" asp-action="Details" asp-route-id="@Model.PeliculaId">@Model.TituloPelicula</a>
+            </div>
+            <div class="post-timestamp">
+                @Model.Fecha.ToString("dd MMMM yyyy")
+            </div>
+            
+            <hr />
+            
+            <h5 class="px-3">Comentarios</h5>
+            
+            @if (Model.Comentarios != null && Model.Comentarios.Any())
+            {
+                foreach (var comment in Model.Comentarios)
+                {
+                    <div class="d-flex p-3">
+                        <img src="@comment.FotoPerfilUsuario" onerror="this.src='/images/users/default.jpg'" alt="@comment.NombreUsuario" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                        <div>
+                            <div>
+                                <a asp-controller="Profile" asp-action="Index" asp-route-id="@comment.UsuarioId" class="fw-bold text-decoration-none text-dark">@comment.NombreUsuario</a>
+                                <span>@comment.Texto</span>
+                            </div>
+                            <small class="text-muted">@comment.Fecha.ToString("dd MMM yyyy")</small>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="px-3 text-muted">No hay comentarios aún.</p>
+            }
+            
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Post" asp-action="AddComment" method="post" class="post-comment-form">
+                    <input type="hidden" name="postId" value="@Model.PublicacionId" />
+                    <input type="text" name="commentText" placeholder="Añade un comentario..." />
+                    <button type="submit">Publicar</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

@@ -1,8 +1,141 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model HomeVM
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row">
+    <div class="col-md-8">
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="alert alert-info mb-4">
+                    <h4>¡Bienvenido a CineFans!</h4>
+                <p>La red social para amantes del cine. <a asp-controller="Account" asp-action="Register">Regístrate</a> o <a asp-controller="Account" asp-action="Login">inicia sesión</a> para compartir tus opiniones sobre películas.</p>
+            </div>
+        }
+
+        @if (Model.Posts != null && Model.Posts.Any())
+        {
+            foreach (var post in Model.Posts)
+            {
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="@post.FotoPerfilUsuario" onerror="this.src='/images/users/default.jpg'" alt="@post.NombreUsuario">
+                        <div>
+                            <a asp-controller="Profile" asp-action="Index" asp-route-id="@post.UsuarioId">@post.NombreUsuario</a>
+                        </div>
+                    </div>
+                    <img src="@post.ImagenPelicula" class="post-image" alt="@post.TituloPelicula">
+                    <div class="post-actions">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            if (post.UserLiked)
+                            {
+                                <form asp-controller="Post" asp-action="Unlike" asp-route-id="@post.PublicacionId" method="post" style="display: inline;">
+                                    <button type="submit"><i class="fas fa-heart text-danger"></i></button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Post" asp-action="Like" asp-route-id="@post.PublicacionId" method="post" style="display: inline;">
+                                    <button type="submit"><i class="far fa-heart"></i></button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            <i class="far fa-heart"></i>
+                        }
+                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.PublicacionId" class="text-decoration-none text-dark">
+                            <i class="far fa-comment ms-2"></i>
+                        </a>
+                    </div>
+                    <div class="post-likes">
+                        @post.LikesCount me gusta
+                    </div>
+                    <div class="post-caption">
+                        <a asp-controller="Profile" asp-action="Index" asp-route-id="@post.UsuarioId">@post.NombreUsuario</a>
+                        <span>@post.Texto</span>
+                    </div>
+                    <div class="post-caption">
+                        <span>Película: </span>
+                        <a asp-controller="Movie" asp-action="Details" asp-route-id="@post.PeliculaId">@post.TituloPelicula</a>
+                    </div>
+                    @if (post.ComentariosCount > 0)
+                    {
+                        <div class="post-comments">
+                            <a asp-controller="Post" asp-action="Details" asp-route-id="@post.PublicacionId" class="text-decoration-none text-muted">
+                                Ver los @post.ComentariosCount comentarios
+                            </a>
+                        </div>
+                    }
+                    <div class="post-timestamp">
+                        @post.Fecha.ToString("dd MMMM yyyy")
+                    </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="Post" asp-action="AddComment" method="post" class="post-comment-form">
+                            <input type="hidden" name="postId" value="@post.PublicacionId" />
+                            <input type="text" name="commentText" placeholder="Añade un comentario..." />
+                            <button type="submit">Publicar</button>
+                        </form>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">
+                No hay publicaciones para mostrar. ¡Sigue a más usuarios o crea tu primera publicación!
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="sidebar">
+            @if (Model.PeliculasPopulares != null && Model.PeliculasPopulares.Any())
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Películas Populares
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach (var movie in Model.PeliculasPopulares)
+                        {
+                            <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.PeliculaId" class="list-group-item list-group-item-action">
+                                <div class="d-flex align-items-center">
+                                    <img src="@movie.ImagenUrl" alt="@movie.Titulo" class="me-3" style="width: 50px; height: 75px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">@movie.Titulo</h6>
+                                        <small class="text-muted">@movie.Anio</small>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (User.Identity.IsAuthenticated && Model.UsuariosSugeridos != null && Model.UsuariosSugeridos.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        Sugerencias para ti
+                    </div>
+                    <div class="card-body">
+                        @foreach (var user in Model.UsuariosSugeridos)
+                        {
+                            <div class="user-suggestion">
+                                <img src="@user.FotoPerfil" onerror="this.src='/images/users/default.jpg'" alt="@user.Nombre">
+                                <div class="user-suggestion-info">
+                                    <a asp-controller="Profile" asp-action="Index" asp-route-id="@user.UserId">@user.Nombre</a>
+                                </div>
+                                <form asp-controller="Profile" asp-action="Follow" asp-route-id="@user.UserId" method="post">
+                                    <button type="submit" class="btn btn-link p-0 user-suggestion-action">Seguir</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
