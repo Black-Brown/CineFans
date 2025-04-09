@@ -23,11 +23,11 @@ namespace CineFansApp.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Home");
+                return View();
             }
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -93,7 +93,7 @@ namespace CineFansApp.Web.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Profile()
+        public IActionResult Profile()
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             return RedirectToAction("Index", "Profile", new { id = userId });
