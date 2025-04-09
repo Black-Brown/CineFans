@@ -2,6 +2,7 @@
 using CineFansApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using CineFansApp.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CineFansApp.Infrastructure.Data
 {
