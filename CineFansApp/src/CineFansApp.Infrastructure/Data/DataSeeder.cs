@@ -1,6 +1,7 @@
 ﻿using BCrypt.Net;
 using CineFansApp.Domain.Entities;
 using CineFansApp.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CineFansApp.Infrastructure.Data
 {
