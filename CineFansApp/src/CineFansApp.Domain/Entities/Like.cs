@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace CineFansApp.Domain.Entities
 {
-    internal class Like
+    public class Like
     {
         public int PublicacionId { get; set; }
         public int UsuarioId { get; set; }
 
         // Navigation properties
-        public Post Post { get; set; }
-        public User User { get; set; }
+        public virtual Post Post { get; set; }
+        public virtual User User { get; set; }
     }
 }

@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace CineFansApp.Domain.Entities
 {
-    internal class Movie
+    public class Movie
     {
+        public Movie()
+        {
+            Posts = new HashSet<Post>();
+        }
+
         public int PeliculaId { get; set; }
         public string Titulo { get; set; }
         public string Descripcion { get; set; }
@@ -17,7 +22,7 @@ namespace CineFansApp.Domain.Entities
         public string ImagenUrl { get; set; }
 
         // Navigation properties
-        public Genre Genre { get; set; }
-        public ICollection<Post> Posts { get; set; }
+        public virtual Genre Genre { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
     }
 }

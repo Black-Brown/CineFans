@@ -21,6 +21,8 @@ namespace CineFansApp.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Configure table names to match SQL schema
             modelBuilder.Entity<User>().ToTable("Usuarios");
             modelBuilder.Entity<Genre>().ToTable("Generos");
