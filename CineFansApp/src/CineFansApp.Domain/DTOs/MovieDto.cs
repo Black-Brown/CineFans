@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CineFansApp.Domain.DTOs
 {
-    internal class MovieDto
+    public class MovieDto
     {
         public int PeliculaId { get; set; }
         public string Titulo { get; set; }

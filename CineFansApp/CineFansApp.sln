@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AFC55B38-7141-4E75-9169-5295E279785E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFansApp", "src\CineFansApp\CineFansApp.csproj", "{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFansApp.Frontend", "src\CineFansApp\CineFansApp.Frontend.csproj", "{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinesFansApp.API", "src\CinesFansApp.API\CinesFansApp.API.csproj", "{3CCB01D5-CA32-49E3-A51D-C08F48FAC184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFansApp.Domain", "src\CineFansApp.Domain\CineFansApp.Domain.csproj", "{334F1397-E59F-4765-9CAC-2A0C9A099847}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFansApp.Infrastructure", "src\CineFansApp.Infrastructure\CineFansApp.Infrastructure.csproj", "{148D0CE1-A132-4EFB-947F-C6066B84DD5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFansApp.Application", "src\CineFansApp.Application\CineFansApp.Application.csproj", "{AA079AD9-790B-4B08-9AED-E715E8B92B38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,11 +25,31 @@ Global
 		{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CCB01D5-CA32-49E3-A51D-C08F48FAC184}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CCB01D5-CA32-49E3-A51D-C08F48FAC184}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CCB01D5-CA32-49E3-A51D-C08F48FAC184}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CCB01D5-CA32-49E3-A51D-C08F48FAC184}.Release|Any CPU.Build.0 = Release|Any CPU
+		{334F1397-E59F-4765-9CAC-2A0C9A099847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{334F1397-E59F-4765-9CAC-2A0C9A099847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{334F1397-E59F-4765-9CAC-2A0C9A099847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{334F1397-E59F-4765-9CAC-2A0C9A099847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{148D0CE1-A132-4EFB-947F-C6066B84DD5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{148D0CE1-A132-4EFB-947F-C6066B84DD5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{148D0CE1-A132-4EFB-947F-C6066B84DD5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{148D0CE1-A132-4EFB-947F-C6066B84DD5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA079AD9-790B-4B08-9AED-E715E8B92B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA079AD9-790B-4B08-9AED-E715E8B92B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA079AD9-790B-4B08-9AED-E715E8B92B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA079AD9-790B-4B08-9AED-E715E8B92B38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{61CDE942-58DC-4D44-BFB5-5E6D0F7B74E2} = {AFC55B38-7141-4E75-9169-5295E279785E}
+		{3CCB01D5-CA32-49E3-A51D-C08F48FAC184} = {AFC55B38-7141-4E75-9169-5295E279785E}
+		{334F1397-E59F-4765-9CAC-2A0C9A099847} = {AFC55B38-7141-4E75-9169-5295E279785E}
+		{148D0CE1-A132-4EFB-947F-C6066B84DD5C} = {AFC55B38-7141-4E75-9169-5295E279785E}
+		{AA079AD9-790B-4B08-9AED-E715E8B92B38} = {AFC55B38-7141-4E75-9169-5295E279785E}
 	EndGlobalSection
 EndGlobal

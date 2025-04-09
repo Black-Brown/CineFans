@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CineFansApp.Domain.DTOs
 {
-    internal class PostDto
+    public class PostDto
     {
         public int PublicacionId { get; set; }
         public int UsuarioId { get; set; }
