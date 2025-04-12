@@ -13,7 +13,7 @@ namespace CineFansApp.Infrastructure.Repositories
         {
         }
 
-        public override async Task<Comment> GetByIdAsync(int id)
+        public override async Task<Comment?> GetByIdAsync(int id)
         {
             return await _context.Comments
                 .Include(c => c.User)

@@ -8,6 +8,6 @@ namespace CinesFansApp.API.Models
         public int PublicacionId { get; set; }
 
         [Required]
-        public string Texto { get; set; }
+        public string? Texto { get; set; }
     }
 }

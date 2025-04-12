@@ -11,9 +11,9 @@ namespace CineFansApp.Domain.DTOs
         public int ComentarioId { get; set; }
         public int PublicacionId { get; set; }
         public int UsuarioId { get; set; }
-        public string NombreUsuario { get; set; }
-        public string FotoPerfilUsuario { get; set; }
-        public string Texto { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? FotoPerfilUsuario { get; set; }
+        public string? Texto { get; set; }
         public DateTime Fecha { get; set; }
     }
 }

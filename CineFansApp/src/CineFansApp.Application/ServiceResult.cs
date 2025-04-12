@@ -3,8 +3,8 @@
     public class ServiceResult<T>
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
-        public T Data { get; set; }
+        public string? Message { get; set; }
+        public T Data { get; set; } = default!;
 
         public static ServiceResult<T> Ok(T data, string message = "Operación exitosa")
         {
@@ -22,7 +22,7 @@
             {
                 Success = false,
                 Message = message,
-                Data = default
+                Data = default!
             };
         }
     }

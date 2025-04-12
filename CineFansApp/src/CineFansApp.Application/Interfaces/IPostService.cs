@@ -6,7 +6,7 @@ namespace CineFansApp.Application.Interfaces
 {
     public interface IPostService
     {
-        Task<PostDto> GetPostByIdAsync(int postId);
+        Task<PostDto?> GetPostByIdAsync(int postId);
         Task<List<PostDto>> GetAllPostsAsync();
         Task<List<PostDto>> GetRecentPostsAsync(int count);
         Task<List<PostDto>> GetFeedPostsAsync(int userId);
@@ -17,5 +17,6 @@ namespace CineFansApp.Application.Interfaces
         Task DeletePostAsync(int postId);
         Task LikePostAsync(int postId, int userId);
         Task UnlikePostAsync(int postId, int userId);
+
     }
 }

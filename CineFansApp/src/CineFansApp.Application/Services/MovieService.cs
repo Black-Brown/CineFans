@@ -19,7 +19,7 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<MovieDto> GetMovieByIdAsync(int movieId)
+        public async Task<MovieDto?> GetMovieByIdAsync(int movieId)
         {
             var movie = await _movieRepository.GetByIdAsync(movieId);
             if (movie == null)
@@ -40,16 +40,16 @@ namespace CineFansApp.Application.Services
             return movies.Select(MapToDto).ToList();
         }
 
-        public async Task<MovieDto> CreateMovieAsync(MovieDto movieDto)
+        public async Task<MovieDto?> CreateMovieAsync(MovieDto movieDto)
         {
             var movie = new Movie
             {
-                Titulo = movieDto.Titulo,
-                Descripcion = movieDto.Descripcion,
+                Titulo = movieDto.Titulo ?? string.Empty,
+                Descripcion = movieDto.Descripcion ?? string.Empty,
                 Anio = movieDto.Anio,
-                Director = movieDto.Director,
+                Director = movieDto.Director ?? string.Empty,
                 GeneroId = movieDto.GeneroId,
-                ImagenUrl = movieDto.ImagenUrl
+                ImagenUrl = movieDto.ImagenUrl ?? string.Empty
             };
 
             _movieRepository.Add(movie);
@@ -58,18 +58,18 @@ namespace CineFansApp.Application.Services
             return MapToDto(movie);
         }
 
-        public async Task<MovieDto> UpdateMovieAsync(MovieDto movieDto)
+        public async Task<MovieDto?> UpdateMovieAsync(MovieDto movieDto)
         {
             var movie = await _movieRepository.GetByIdAsync(movieDto.PeliculaId);
             if (movie == null)
                 throw new KeyNotFoundException($"Película con ID {movieDto.PeliculaId} no encontrada");
 
-            movie.Titulo = movieDto.Titulo;
-            movie.Descripcion = movieDto.Descripcion;
+            movie.Titulo = movieDto.Titulo ?? string.Empty;
+            movie.Descripcion = movieDto.Descripcion ?? string.Empty;
             movie.Anio = movieDto.Anio;
-            movie.Director = movieDto.Director;
+            movie.Director = movieDto.Director ?? string.Empty;
             movie.GeneroId = movieDto.GeneroId;
-            movie.ImagenUrl = movieDto.ImagenUrl;
+            movie.ImagenUrl = movieDto.ImagenUrl ?? string.Empty;
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(movie);

@@ -9,9 +9,9 @@ namespace CineFansApp.Domain.DTOs
     public class UserDto
     {
         public int UserId { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
-        public string FotoPerfil { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
+        public string? FotoPerfil { get; set; }
         public DateTime FechaRegistro { get; set; }
         public int SeguidoresCount { get; set; }
         public int SiguiendoCount { get; set; }

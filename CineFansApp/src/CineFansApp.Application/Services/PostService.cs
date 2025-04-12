@@ -25,7 +25,7 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PostDto> GetPostByIdAsync(int postId)
+        public async Task<PostDto?> GetPostByIdAsync(int postId)
         {
             var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
@@ -141,7 +141,6 @@ namespace CineFansApp.Application.Services
                 UsuarioId = post.UsuarioId,
                 NombreUsuario = post.User?.Nombre,
                 FotoPerfilUsuario = post.User?.FotoPerfil,
-                PeliculaId = post.PeliculaId,
                 TituloPelicula = post.Movie?.Titulo,
                 ImagenPelicula = post.Movie?.ImagenUrl,
                 Texto = post.Texto,

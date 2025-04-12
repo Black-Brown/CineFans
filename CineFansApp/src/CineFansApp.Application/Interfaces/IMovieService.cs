@@ -6,11 +6,11 @@ namespace CineFansApp.Application.Interfaces
 {
     public interface IMovieService
     {
-        Task<MovieDto> GetMovieByIdAsync(int movieId);
+        Task<MovieDto?> GetMovieByIdAsync(int movieId);
         Task<List<MovieDto>> GetAllMoviesAsync();
         Task<List<MovieDto>> GetPopularMoviesAsync(int count);
-        Task<MovieDto> CreateMovieAsync(MovieDto movieDto);
-        Task<MovieDto> UpdateMovieAsync(MovieDto movieDto);
+        Task<MovieDto?> CreateMovieAsync(MovieDto movieDto);
+        Task<MovieDto?> UpdateMovieAsync(MovieDto movieDto);
         Task DeleteMovieAsync(int movieId);
     }
 }

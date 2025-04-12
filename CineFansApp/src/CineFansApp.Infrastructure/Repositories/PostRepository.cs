@@ -13,7 +13,7 @@ namespace CineFansApp.Infrastructure.Repositories
         {
         }
 
-        public override async Task<Post> GetByIdAsync(int id)
+        public override async Task<Post?> GetByIdAsync(int id)
         {
             return await _context.Posts
                 .Include(p => p.User)

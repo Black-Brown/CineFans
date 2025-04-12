@@ -13,7 +13,7 @@ namespace CineFansApp.Infrastructure.Repositories
         {
         }
 
-        public override async Task<Movie> GetByIdAsync(int id)
+        public override async Task<Movie?> GetByIdAsync(int id)
         {
             return await _context.Movies
                 .Include(m => m.Genre)
