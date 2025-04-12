@@ -23,7 +23,7 @@ namespace CineFansApp.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (!User.Identity.IsAuthenticated)
+            if (User?.Identity?.IsAuthenticated == false)
             {
                 return View();
             }
@@ -42,17 +42,17 @@ namespace CineFansApp.Web.Controllers
                     await SignInUserAsync(user);
                     return RedirectToAction("Index", "Home");
                 }
-                
-                ModelState.AddModelError(string.Empty, result.Message);
+
+                ModelState.AddModelError(string.Empty, result.Message ?? string.Empty);
             }
-            
+
             return View(model);
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User?.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -62,26 +62,30 @@ namespace CineFansApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM model)
         {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             if (ModelState.IsValid)
             {
-                var userDto = new UserDto
+                var result = await _authService.RegisterUserAsync(new UserDto
                 {
                     Nombre = model.Nombre,
                     Email = model.Email,
-                    FechaRegistro = DateTime.Now
-                };
-                
-                var result = await _authService.RegisterUserAsync(userDto, model.Password);
+                    FechaRegistro = DateTime.UtcNow
+                }, model.Password);
+
                 if (result.Success)
                 {
                     var user = result.Data;
                     await SignInUserAsync(user);
                     return RedirectToAction("Index", "Home");
                 }
-                
-                ModelState.AddModelError(string.Empty, result.Message);
+
+                ModelState.AddModelError(string.Empty, result.Message ?? string.Empty);
             }
-            
+
             return View(model);
         }
 
@@ -95,18 +99,18 @@ namespace CineFansApp.Web.Controllers
         [Authorize]
         public IActionResult Profile()
         {
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = int.Parse(User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             return RedirectToAction("Index", "Profile", new { id = userId });
         }
 
         private async Task SignInUserAsync(UserDto user)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Nombre),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Name, user.Nombre ?? string.Empty),
+                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
+                };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
