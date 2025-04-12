@@ -26,7 +26,7 @@ namespace CineSocial.Web.Controllers
             }
 
             var posts = await _postService.GetPostsByUserIdAsync(id);
-            
+
             var viewModel = new ProfileVM
             {
                 User = user,
@@ -35,11 +35,11 @@ namespace CineSocial.Web.Controllers
                 IsFollowing = false
             };
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
-                int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 viewModel.IsCurrentUser = currentUserId == id;
-                
+
                 if (!viewModel.IsCurrentUser)
                 {
                     viewModel.IsFollowing = await _userService.IsFollowingAsync(currentUserId, id);
@@ -53,7 +53,13 @@ namespace CineSocial.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Follow(int id)
         {
-            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            int currentUserId = int.Parse(userIdClaim);
             await _userService.FollowUserAsync(currentUserId, id);
             return RedirectToAction(nameof(Index), new { id });
         }
@@ -62,7 +68,13 @@ namespace CineSocial.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Unfollow(int id)
         {
-            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            int currentUserId = int.Parse(userIdClaim);
             await _userService.UnfollowUserAsync(currentUserId, id);
             return RedirectToAction(nameof(Index), new { id });
         }
