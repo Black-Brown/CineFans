@@ -38,7 +38,7 @@ namespace CineFansApp.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<User>> GetFollowersAsync(int userId)
+        public async Task<List<User?>> GetFollowersAsync(int userId)
         {
             return await _context.Follows
                 .Where(f => f.SeguidoId == userId)
@@ -47,7 +47,7 @@ namespace CineFansApp.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<User>> GetFollowingAsync(int userId)
+        public async Task<List<User?>> GetFollowingAsync(int userId)
         {
             return await _context.Follows
                 .Where(f => f.SeguidorId == userId)

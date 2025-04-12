@@ -50,16 +50,16 @@ namespace CineFansApp.Application.Services
             return users.Select(MapToDto).ToList();
         }
 
-        public async Task<List<UserDto>> GetFollowersAsync(int userId)
+        public async Task<List<UserDto?>> GetFollowersAsync(int userId)
         {
             var followers = await _userRepository.GetFollowersAsync(userId);
-            return followers.Select(MapToDto).ToList();
+            return followers.Select(user => user == null ? null : MapToDto(user)).ToList();
         }
 
-        public async Task<List<UserDto>> GetFollowingAsync(int userId)
+        public async Task<List<UserDto?>> GetFollowingAsync(int userId)
         {
             var following = await _userRepository.GetFollowingAsync(userId);
-            return following.Select(MapToDto).ToList();
+            return following.Select(user => user == null ? null : MapToDto(user)).ToList();
         }
 
         public async Task<bool> IsFollowingAsync(int followerId, int followedId)
@@ -94,18 +94,8 @@ namespace CineFansApp.Application.Services
             if (user == null)
                 throw new KeyNotFoundException($"Usuario con ID {userDto.UserId} no encontrado");
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            user.Nombre = userDto.Nombre ?? user.Nombre;
-            user.FotoPerfil = userDto.FotoPerfil ?? user.FotoPerfil;
-=======
             user.Nombre = userDto.Nombre ?? string.Empty;
             user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
->>>>>>> Stashed changes
-=======
-            user.Nombre = userDto.Nombre ?? string.Empty;
-            user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
->>>>>>> Stashed changes
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(user);
