@@ -7,5 +7,6 @@ namespace CineFansApp.Application.Interfaces
     {
         Task<ServiceResult<UserDto>> ValidateUserAsync(string email, string password);
         Task<ServiceResult<UserDto>> RegisterUserAsync(UserDto userDto, string password);
+        Task<string> AuthenticateAsync(string? email, string? password);
     }
 }

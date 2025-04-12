@@ -1,10 +1,10 @@
 ﻿namespace CinesFansApp.API.Models
 {
-    public class ApiResponse
+    public class ApiResponse<T> // ¡Falta el parámetro genérico <T>!
     {
         public bool Success { get; set; }
         public string? Message { get; set; }
-        public T Data { get; set; }
+        public T? Data { get; set; } // Añade "?" si T puede ser null
 
         public static ApiResponse<T> Ok(T data, string message = "Operación exitosa")
         {
@@ -22,7 +22,7 @@
             {
                 Success = false,
                 Message = message,
-                Data = default
+                Data = default // o Data = null
             };
         }
     }
