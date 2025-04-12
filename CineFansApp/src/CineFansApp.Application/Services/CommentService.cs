@@ -20,7 +20,7 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<CommentDto> GetCommentByIdAsync(int commentId)
+        public async Task<CommentDto?> GetCommentByIdAsync(int commentId)
         {
             var comment = await _commentRepository.GetByIdAsync(commentId);
             if (comment == null)
@@ -35,13 +35,13 @@ namespace CineFansApp.Application.Services
             return comments.Select(MapToDto).ToList();
         }
 
-        public async Task<CommentDto> CreateCommentAsync(CommentDto commentDto)
+        public async Task<CommentDto?> CreateCommentAsync(CommentDto commentDto)
         {
             var comment = new Comment
             {
                 PublicacionId = commentDto.PublicacionId,
                 UsuarioId = commentDto.UsuarioId,
-                Texto = commentDto.Texto,
+                Texto = commentDto.Texto ?? string.Empty,
                 Fecha = DateTime.Now
             };
 
@@ -51,13 +51,13 @@ namespace CineFansApp.Application.Services
             return MapToDto(comment);
         }
 
-        public async Task<CommentDto> UpdateCommentAsync(CommentDto commentDto)
+        public async Task<CommentDto?> UpdateCommentAsync(CommentDto commentDto)
         {
             var comment = await _commentRepository.GetByIdAsync(commentDto.ComentarioId);
             if (comment == null)
                 throw new KeyNotFoundException($"Comentario con ID {commentDto.ComentarioId} no encontrado");
 
-            comment.Texto = commentDto.Texto;
+            comment.Texto = commentDto.Texto ?? string.Empty;
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(comment);

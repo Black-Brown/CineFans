@@ -12,7 +12,7 @@ namespace CineFansApp.Domain.Entities
         public int UsuarioId { get; set; }
 
         // Navigation properties
-        public virtual Post Post { get; set; }
-        public virtual User User { get; set; }
+        public virtual Post? Post { get; set; }
+        public virtual User? User { get; set; }
     }
 }

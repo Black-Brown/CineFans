@@ -1,8 +1,6 @@
 ﻿using BCrypt.Net;
 using CineFansApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using CineFansApp.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace CineFansApp.Infrastructure.Data
 {
@@ -10,13 +8,11 @@ namespace CineFansApp.Infrastructure.Data
     {
         public static async Task SeedDataAsync(AppDbContext context)
         {
-            // Verificar si ya hay datos
             if (context.Users.Any())
             {
-                return; // La base de datos ya tiene datos
+                return;
             }
 
-            // Agregar géneros si no existen
             if (!context.Genres.Any())
             {
                 var generos = new Genre[]
@@ -38,7 +34,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar películas si no existen
             if (!context.Movies.Any())
             {
                 var generos = await context.Genres.ToListAsync();
@@ -86,7 +81,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar usuarios si no existen
             if (!context.Users.Any())
             {
                 var usuarios = new User[]
@@ -121,7 +115,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar publicaciones si no existen
             if (!context.Posts.Any())
             {
                 var usuarios = await context.Users.ToListAsync();
@@ -156,7 +149,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar comentarios si no existen
             if (!context.Comments.Any())
             {
                 var usuarios = await context.Users.ToListAsync();
@@ -185,7 +177,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar likes si no existen
             if (!context.Likes.Any())
             {
                 var usuarios = await context.Users.ToListAsync();
@@ -205,7 +196,6 @@ namespace CineFansApp.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // Agregar seguidores si no existen
             if (!context.Follows.Any())
             {
                 var usuarios = await context.Users.ToListAsync();

@@ -71,5 +71,10 @@ namespace CineFansApp.Application.Services
 
             return ServiceResult<UserDto>.Ok(userDto, "Registro exitoso");
         }
+
+        public Task<string> AuthenticateAsync(string? email, string? password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

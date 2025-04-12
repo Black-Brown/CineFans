@@ -45,7 +45,8 @@ namespace CineSocial.Web.Controllers
                 {
                     Value = m.PeliculaId.ToString(),
                     Text = m.Titulo
-                }).ToList()
+                }).ToList(),
+                Texto = string.Empty // Initialize the required member 'Texto'
             };
 
             return View(viewModel);
@@ -57,7 +58,7 @@ namespace CineSocial.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User identifier not found"));
                 
                 var postDto = new PostDto
                 {
@@ -91,7 +92,7 @@ namespace CineSocial.Web.Controllers
                 return RedirectToAction(nameof(Details), new { id = postId });
             }
             
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User identifier not found"));
             
             var commentDto = new CommentDto
             {
@@ -109,7 +110,7 @@ namespace CineSocial.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Like(int id)
         {
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User identifier not found"));
             await _postService.LikePostAsync(id, userId);
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -118,7 +119,7 @@ namespace CineSocial.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Unlike(int id)
         {
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User identifier not found"));
             await _postService.UnlikePostAsync(id, userId);
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -127,7 +128,7 @@ namespace CineSocial.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User identifier not found"));
             var post = await _postService.GetPostByIdAsync(id);
             
             if (post == null || post.UsuarioId != userId)

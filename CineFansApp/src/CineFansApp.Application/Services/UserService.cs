@@ -20,20 +20,20 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserDto> GetUserByIdAsync(int userId)
+        public async Task<UserDto?> GetUserByIdAsync(int userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
-                return null;
+                throw new KeyNotFoundException($"Usuario con id {userId} no encontrado");
 
             return MapToDto(user);
         }
 
-        public async Task<UserDto> GetUserByEmailAsync(string email)
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
-                return null;
+                throw new KeyNotFoundException($"Usuario con email {email} no encontrado");
 
             return MapToDto(user);
         }
@@ -88,14 +88,24 @@ namespace CineFansApp.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<UserDto> UpdateUserAsync(UserDto userDto)
+        public async Task<UserDto?> UpdateUserAsync(UserDto userDto)
         {
             var user = await _userRepository.GetByIdAsync(userDto.UserId);
             if (user == null)
                 throw new KeyNotFoundException($"Usuario con ID {userDto.UserId} no encontrado");
 
-            user.Nombre = userDto.Nombre;
-            user.FotoPerfil = userDto.FotoPerfil;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+            user.Nombre = userDto.Nombre ?? user.Nombre;
+            user.FotoPerfil = userDto.FotoPerfil ?? user.FotoPerfil;
+=======
+            user.Nombre = userDto.Nombre ?? string.Empty;
+            user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
+>>>>>>> Stashed changes
+=======
+            user.Nombre = userDto.Nombre ?? string.Empty;
+            user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
+>>>>>>> Stashed changes
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(user);

@@ -25,7 +25,7 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PostDto> GetPostByIdAsync(int postId)
+        public async Task<PostDto?> GetPostByIdAsync(int postId)
         {
             var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
@@ -77,13 +77,13 @@ namespace CineFansApp.Application.Services
             return posts.Select(MapToDto).ToList();
         }
 
-        public async Task<PostDto> CreatePostAsync(PostDto postDto)
+        public async Task<PostDto?> CreatePostAsync(PostDto postDto)
         {
             var post = new Post
             {
                 UsuarioId = postDto.UsuarioId,
                 PeliculaId = postDto.PeliculaId,
-                Texto = postDto.Texto,
+                Texto = postDto.Texto ?? string.Empty,
                 Fecha = DateTime.Now
             };
 
@@ -93,13 +93,13 @@ namespace CineFansApp.Application.Services
             return MapToDto(post);
         }
 
-        public async Task<PostDto> UpdatePostAsync(PostDto postDto)
+        public async Task<PostDto?> UpdatePostAsync(PostDto postDto)
         {
             var post = await _postRepository.GetByIdAsync(postDto.PublicacionId);
             if (post == null)
                 throw new KeyNotFoundException($"Publicación con ID {postDto.PublicacionId} no encontrada");
 
-            post.Texto = postDto.Texto;
+            post.Texto = postDto.Texto ?? string.Empty;
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(post);
@@ -139,11 +139,24 @@ namespace CineFansApp.Application.Services
             {
                 PublicacionId = post.PublicacionId,
                 UsuarioId = post.UsuarioId,
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 NombreUsuario = post.User?.Nombre,
                 FotoPerfilUsuario = post.User?.FotoPerfil,
-                PeliculaId = post.PeliculaId,
                 TituloPelicula = post.Movie?.Titulo,
                 ImagenPelicula = post.Movie?.ImagenUrl,
+=======
+=======
+>>>>>>> Stashed changes
+                NombreUsuario = post.User?.Nombre ?? string.Empty,
+                FotoPerfilUsuario = post.User?.FotoPerfil ?? string.Empty,
+                PeliculaId = post.PeliculaId,
+                TituloPelicula = post.Movie?.Titulo ?? string.Empty,
+                ImagenPelicula = post.Movie?.ImagenUrl ?? string.Empty,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
                 Texto = post.Texto,
                 Fecha = post.Fecha,
                 LikesCount = post.Likes?.Count ?? 0,

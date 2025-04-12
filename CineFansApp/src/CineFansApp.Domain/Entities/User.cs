@@ -15,6 +15,11 @@ namespace CineFansApp.Domain.Entities
             Likes = new HashSet<Like>();
             Followers = new HashSet<Follow>();
             Following = new HashSet<Follow>();
+
+            Nombre = string.Empty;
+            Email = string.Empty;
+            PasswordHash = string.Empty;
+            FotoPerfil = string.Empty;
         }
 
         public int UserId { get; set; }

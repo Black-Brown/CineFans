@@ -19,7 +19,7 @@ namespace CineFansApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<GenreDto> GetGenreByIdAsync(int genreId)
+        public async Task<GenreDto?> GetGenreByIdAsync(int genreId)
         {
             var genre = await _genreRepository.GetByIdAsync(genreId);
             if (genre == null)
@@ -34,11 +34,19 @@ namespace CineFansApp.Application.Services
             return genres.Select(MapToDto).ToList();
         }
 
-        public async Task<GenreDto> CreateGenreAsync(GenreDto genreDto)
+        public async Task<GenreDto?> CreateGenreAsync(GenreDto genreDto)
         {
             var genre = new Genre
             {
-                Nombre = genreDto.Nombre
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+                Nombre = genreDto.Nombre ?? string.Empty
+=======
+                Nombre = genreDto.Nombre ?? string.Empty,
+>>>>>>> Stashed changes
+=======
+                Nombre = genreDto.Nombre ?? string.Empty,
+>>>>>>> Stashed changes
             };
 
             _genreRepository.Add(genre);
@@ -47,13 +55,13 @@ namespace CineFansApp.Application.Services
             return MapToDto(genre);
         }
 
-        public async Task<GenreDto> UpdateGenreAsync(GenreDto genreDto)
+        public async Task<GenreDto?> UpdateGenreAsync(GenreDto genreDto)
         {
             var genre = await _genreRepository.GetByIdAsync(genreDto.GeneroId);
             if (genre == null)
                 throw new KeyNotFoundException($"Género con ID {genreDto.GeneroId} no encontrado");
 
-            genre.Nombre = genreDto.Nombre;
+            genre.Nombre = genreDto.Nombre ?? string.Empty;
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(genre);

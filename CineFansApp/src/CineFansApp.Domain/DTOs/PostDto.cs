@@ -10,16 +10,24 @@ namespace CineFansApp.Domain.DTOs
     {
         public int PublicacionId { get; set; }
         public int UsuarioId { get; set; }
-        public string NombreUsuario { get; set; }
-        public string FotoPerfilUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? FotoPerfilUsuario { get; set; }
         public int PeliculaId { get; set; }
-        public string TituloPelicula { get; set; }
-        public string ImagenPelicula { get; set; }
-        public string Texto { get; set; }
+        public string? TituloPelicula { get; set; }
+        public string? ImagenPelicula { get; set; }
+        public string? Texto { get; set; }
         public DateTime Fecha { get; set; }
         public int LikesCount { get; set; }
         public int ComentariosCount { get; set; }
         public bool UserLiked { get; set; }
-        public List<CommentDto> Comentarios { get; set; }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+        public List<CommentDto>? Comentarios { get; set; }
+=======
+        public List<CommentDto> Comentarios { get; set; } = new List<CommentDto>();
+>>>>>>> Stashed changes
+=======
+        public List<CommentDto> Comentarios { get; set; } = new List<CommentDto>();
+>>>>>>> Stashed changes
     }
 }

@@ -20,7 +20,7 @@
             {
                 <div class="post-card">
                     <div class="post-header">
-                        <img src="@post.FotoPerfilUsuario" onerror="this.src='/images/users/default.jpg'" alt="@post.NombreUsuario">
+                        <img src="@post.FotoPerfilUsuario" onerror="/* this.src='/images/users/default.jpg' */" alt="@post.NombreUsuario">
                         <div>
                             <a asp-controller="Profile" asp-action="Index" asp-route-id="@post.UsuarioId">@post.NombreUsuario</a>
                         </div>
@@ -125,7 +125,7 @@
                         @foreach (var user in Model.UsuariosSugeridos)
                         {
                             <div class="user-suggestion">
-                                <img src="@user.FotoPerfil" onerror="this.src='/images/users/default.jpg'" alt="@user.Nombre">
+                                <img src="@user.FotoPerfil" onerror="/* this.src='/images/users/default.jpg' */" alt="@user.Nombre">
                                 <div class="user-suggestion-info">
                                     <a asp-controller="Profile" asp-action="Index" asp-route-id="@user.UserId">@user.Nombre</a>
                                 </div>
