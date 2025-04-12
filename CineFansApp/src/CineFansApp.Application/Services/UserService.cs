@@ -94,8 +94,13 @@ namespace CineFansApp.Application.Services
             if (user == null)
                 throw new KeyNotFoundException($"Usuario con ID {userDto.UserId} no encontrado");
 
+<<<<<<< Updated upstream
             user.Nombre = userDto.Nombre ?? user.Nombre;
             user.FotoPerfil = userDto.FotoPerfil ?? user.FotoPerfil;
+=======
+            user.Nombre = userDto.Nombre ?? string.Empty;
+            user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
+>>>>>>> Stashed changes
 
             await _unitOfWork.SaveChangesAsync();
             return MapToDto(user);

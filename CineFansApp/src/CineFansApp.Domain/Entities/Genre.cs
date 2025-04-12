@@ -11,6 +11,7 @@ namespace CineFansApp.Domain.Entities
         public Genre()
         {
             Movies = new HashSet<Movie>();
+            Nombre = string.Empty; // Initialize Nombre to avoid CS8618
         }
 
         public int GeneroId { get; set; }

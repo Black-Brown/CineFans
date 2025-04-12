@@ -12,8 +12,8 @@ namespace CineFansApp.Domain.Entities
         public int SeguidoId { get; set; }
 
         // Navigation properties
-        public virtual User Follower { get; set; }
-        public virtual User Following { get; set; }
+        public virtual User? Follower { get; set; }
+        public virtual User? Following { get; set; }
 
     }
 }

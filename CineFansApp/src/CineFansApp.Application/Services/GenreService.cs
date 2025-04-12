@@ -38,7 +38,11 @@ namespace CineFansApp.Application.Services
         {
             var genre = new Genre
             {
+<<<<<<< Updated upstream
                 Nombre = genreDto.Nombre ?? string.Empty
+=======
+                Nombre = genreDto.Nombre ?? string.Empty,
+>>>>>>> Stashed changes
             };
 
             _genreRepository.Add(genre);

@@ -11,6 +11,11 @@ namespace CineFansApp.Domain.Entities
         public Movie()
         {
             Posts = new HashSet<Post>();
+            Titulo = string.Empty;
+            Descripcion = string.Empty;
+            Director = string.Empty;
+            ImagenUrl = string.Empty;
+            Genre = new Genre();
         }
 
         public int PeliculaId { get; set; }

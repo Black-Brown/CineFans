@@ -12,8 +12,8 @@ namespace CineFansApp.Application.Interfaces
         Task<List<PostDto>> GetFeedPostsAsync(int userId);
         Task<List<PostDto>> GetPostsByUserIdAsync(int userId);
         Task<List<PostDto>> GetPostsByMovieIdAsync(int movieId);
-        Task<PostDto> CreatePostAsync(PostDto postDto);
-        Task<PostDto> UpdatePostAsync(PostDto postDto);
+        Task<PostDto?> CreatePostAsync(PostDto postDto);
+        Task<PostDto?> UpdatePostAsync(PostDto postDto);
         Task DeletePostAsync(int postId);
         Task LikePostAsync(int postId, int userId);
         Task UnlikePostAsync(int postId, int userId);

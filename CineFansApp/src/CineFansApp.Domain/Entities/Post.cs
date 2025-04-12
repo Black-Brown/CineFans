@@ -8,6 +8,18 @@ namespace CineFansApp.Domain.Entities
 {
     public class Post
     {
+<<<<<<< Updated upstream
+=======
+        public Post()
+        {
+            Comments = new HashSet<Comment>();
+            Likes = new HashSet<Like>();
+            Texto = string.Empty;
+            User = new User();
+            Movie = new Movie();
+        }
+
+>>>>>>> Stashed changes
         public int PublicacionId { get; set; }
         public int UsuarioId { get; set; }
         public int PeliculaId { get; set; }

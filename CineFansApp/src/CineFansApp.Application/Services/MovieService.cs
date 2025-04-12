@@ -95,7 +95,7 @@ namespace CineFansApp.Application.Services
                 Anio = movie.Anio,
                 Director = movie.Director,
                 GeneroId = movie.GeneroId,
-                GeneroNombre = movie.Genre?.Nombre,
+                GeneroNombre = movie.Genre?.Nombre ?? string.Empty,
                 ImagenUrl = movie.ImagenUrl
             };
         }

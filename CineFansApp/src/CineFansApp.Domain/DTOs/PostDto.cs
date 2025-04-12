@@ -20,6 +20,10 @@ namespace CineFansApp.Domain.DTOs
         public int LikesCount { get; set; }
         public int ComentariosCount { get; set; }
         public bool UserLiked { get; set; }
+<<<<<<< Updated upstream
         public List<CommentDto>? Comentarios { get; set; }
+=======
+        public List<CommentDto> Comentarios { get; set; } = new List<CommentDto>();
+>>>>>>> Stashed changes
     }
 }
