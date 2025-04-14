@@ -30,9 +30,9 @@ namespace CineSocial.Web.Controllers
         {
             var viewModel = new HomeVM();
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
-                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
                 // Obtener publicaciones del feed (de usuarios seguidos y propias)
                 viewModel.Posts = await _postService.GetFeedPostsAsync(userId);
