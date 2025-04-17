@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CineFansApp.Domain.DTOs
 {
@@ -20,14 +17,6 @@ namespace CineFansApp.Domain.DTOs
         public int LikesCount { get; set; }
         public int ComentariosCount { get; set; }
         public bool UserLiked { get; set; }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        public List<CommentDto>? Comentarios { get; set; }
-=======
         public List<CommentDto> Comentarios { get; set; } = new List<CommentDto>();
->>>>>>> Stashed changes
-=======
-        public List<CommentDto> Comentarios { get; set; } = new List<CommentDto>();
->>>>>>> Stashed changes
     }
 }

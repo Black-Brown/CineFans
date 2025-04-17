@@ -49,6 +49,12 @@ namespace CinesFansApp.API.Controllers
                     PeliculaId = request.PeliculaId
                 };
                 var post = await _postService.CreatePostAsync(postDto);
+
+                if (post == null)
+                {
+                    return StatusCode(500, ApiResponse<PostDto>.Error("Error al crear la publicación"));
+                }
+
                 return Ok(ApiResponse<PostDto>.Ok(post));
             }
             catch (ValidationException ex)

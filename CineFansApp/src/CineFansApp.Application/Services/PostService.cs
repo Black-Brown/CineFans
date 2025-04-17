@@ -139,29 +139,16 @@ namespace CineFansApp.Application.Services
             {
                 PublicacionId = post.PublicacionId,
                 UsuarioId = post.UsuarioId,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                NombreUsuario = post.User?.Nombre,
-                FotoPerfilUsuario = post.User?.FotoPerfil,
-                TituloPelicula = post.Movie?.Titulo,
-                ImagenPelicula = post.Movie?.ImagenUrl,
-=======
-=======
->>>>>>> Stashed changes
                 NombreUsuario = post.User?.Nombre ?? string.Empty,
                 FotoPerfilUsuario = post.User?.FotoPerfil ?? string.Empty,
                 PeliculaId = post.PeliculaId,
                 TituloPelicula = post.Movie?.Titulo ?? string.Empty,
                 ImagenPelicula = post.Movie?.ImagenUrl ?? string.Empty,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                 Texto = post.Texto,
                 Fecha = post.Fecha,
                 LikesCount = post.Likes?.Count ?? 0,
                 ComentariosCount = post.Comments?.Count ?? 0,
-                UserLiked = false // Se establece en GetFeedPostsAsync
+                UserLiked = false // Se establece luego en GetFeedPostsAsync
             };
         }
     }
