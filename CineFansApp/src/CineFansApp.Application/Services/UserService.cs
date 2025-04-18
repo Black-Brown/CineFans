@@ -1,104 +1,76 @@
+using CineFansApp.Application.DTOs;
 using CineFansApp.Application.Interfaces;
-using CineFansApp.Domain.DTOs;
 using CineFansApp.Domain.Entities;
-using CineFansApp.Infrastructure.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CineFansApp.Domain.Interfaces;
+using System.Security.Cryptography;
+using System.Text;
+
 
 namespace CineFansApp.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int userId)
+        public async Task<bool> RegisterAsync(UserRegisterDto dto)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            if (dto.Password != dto.ConfirmPassword)
+                throw new ArgumentException("Passwords do not match.");
+
+            var user = new User
+            {
+                Nombre = dto.Nombre,
+                Email = dto.Email,
+                PasswordHash = HashPassword(dto.Password),
+                FotoPerfil = dto.FotoPerfil,
+                FechaRegistro = DateTime.UtcNow
+            };
+
+            var addedUser = await _userRepository.AddAsync(user);
+            return addedUser != null;
+        }
+
+        public async Task<string?> LoginAsync(UserLoginDto dto)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+            if (user == null || !VerifyPassword(dto.Password, user.PasswordHash))
+                throw new UnauthorizedAccessException("Invalid email or password.");
+
+            return GenerateToken(user);
+        }
+
+        public async Task<UserDto?> GetByIdAsync(int id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
-                throw new KeyNotFoundException($"Usuario con id {userId} no encontrado");
+                throw new KeyNotFoundException($"User with id {id} not found.");
 
             return MapToDto(user);
         }
 
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
-        {
-            var user = await _userRepository.GetByEmailAsync(email);
-            if (user == null)
-                throw new KeyNotFoundException($"Usuario con email {email} no encontrado");
-
-            return MapToDto(user);
-        }
-
-        public async Task<List<UserDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();
-            return users.Select(MapToDto).ToList();
+            return users.Select(MapToDto);
         }
 
-        public async Task<List<UserDto>> GetSuggestedUsersAsync(int userId, int count)
+        public async Task<bool> UpdateProfileAsync(int id, UserDto dto)
         {
-            var users = await _userRepository.GetSuggestedUsersAsync(userId, count);
-            return users.Select(MapToDto).ToList();
-        }
-
-        public async Task<List<UserDto?>> GetFollowersAsync(int userId)
-        {
-            var followers = await _userRepository.GetFollowersAsync(userId);
-            return followers.Select(user => user != null ? MapToDto(user) : null).ToList();
-        }
-
-        public async Task<List<UserDto?>> GetFollowingAsync(int userId)
-        {
-            var following = await _userRepository.GetFollowingAsync(userId);
-            return following.Select(user => user != null ? MapToDto(user) : null).ToList();
-        }
-
-        public async Task<bool> IsFollowingAsync(int followerId, int followedId)
-        {
-            return await _userRepository.IsFollowingAsync(followerId, followedId);
-        }
-
-        public async Task FollowUserAsync(int followerId, int followedId)
-        {
-            if (followerId == followedId)
-                throw new InvalidOperationException("Un usuario no puede seguirse a sí mismo");
-
-            if (await IsFollowingAsync(followerId, followedId))
-                return;
-
-            await _userRepository.FollowUserAsync(followerId, followedId);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task UnfollowUserAsync(int followerId, int followedId)
-        {
-            if (!await IsFollowingAsync(followerId, followedId))
-                return;
-
-            await _userRepository.UnfollowUserAsync(followerId, followedId);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task<UserDto?> UpdateUserAsync(UserDto userDto)
-        {
-            var user = await _userRepository.GetByIdAsync(userDto.UserId);
+            var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
-                throw new KeyNotFoundException($"Usuario con ID {userDto.UserId} no encontrado");
+                throw new KeyNotFoundException($"User with id {id} not found.");
 
-            user.Nombre = userDto.Nombre ?? string.Empty;
-            user.FotoPerfil = userDto.FotoPerfil ?? string.Empty;
+            user.Nombre = dto.Nombre;
+            user.Email = dto.Email;
+            user.FotoPerfil = dto.FotoPerfil;
 
-            await _unitOfWork.SaveChangesAsync();
-            return MapToDto(user);
+            var updatedUser = await _userRepository.UpdateAsync(user);
+            return updatedUser != null;
         }
 
         private UserDto MapToDto(User user)
@@ -110,10 +82,26 @@ namespace CineFansApp.Application.Services
                 Email = user.Email,
                 FotoPerfil = user.FotoPerfil,
                 FechaRegistro = user.FechaRegistro,
-                SeguidoresCount = user.Followers?.Count ?? 0,
-                SiguiendoCount = user.Following?.Count ?? 0,
-                PublicacionesCount = user.Posts?.Count ?? 0
             };
+        }
+
+        private string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create(); // Crea una instancia del algoritmo SHA-256
+            var bytes = Encoding.UTF8.GetBytes(password); // Convierte la contraseña en un arreglo de bytes
+            var hash = sha256.ComputeHash(bytes); // Genera el hash a partir de los bytes
+            return Convert.ToBase64String(hash); // Convierte el hash a una cadena en Base64
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            return HashPassword(password) == hashedPassword; // Compara el hash de la contraseña ingresada con el hash almacenado
+        }
+
+        private string GenerateToken(User user)
+        {
+            // Placeholder for token generation logic  
+            return "dummy-token";
         }
     }
 }

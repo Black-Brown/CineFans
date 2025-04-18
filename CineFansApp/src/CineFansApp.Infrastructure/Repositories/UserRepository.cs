@@ -1,87 +1,65 @@
+using CineFansApp.Domain.Interfaces;
 using CineFansApp.Domain.Entities;
 using CineFansApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CineFansApp.Infrastructure.Repositories
 {
-    public class UserRepository : Repository<User>, IUserRepository
+    public class UserRepository : IUserRepository
     {
-        public UserRepository(AppDbContext context) : base(context)
+        private readonly AppDbContext _context;
+
+        public UserRepository(AppDbContext context)
         {
+            _context = context;
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<User> GetUserByIdAsync(int userId)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.UserId == userId)
+                ?? throw new KeyNotFoundException("User not found.");
         }
 
-        public async Task<List<User>> GetSuggestedUsersAsync(int userId, int count)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            // Obtener IDs de usuarios que el usuario actual sigue
-            var followingIds = await _context.Follows
-                .Where(f => f.SeguidorId == userId)
-                .Select(f => f.SeguidoId)
-                .ToListAsync();
-
-            // Añadir el ID del usuario actual para excluirlo también
-            followingIds.Add(userId);
-
-            // Obtener usuarios sugeridos (que no siga el usuario actual)
             return await _context.Users
-                .Where(u => !followingIds.Contains(u.UserId))
-                .OrderBy(u => Guid.NewGuid()) // Ordenar aleatoriamente
-                .Take(count)
-                .ToListAsync();
+                .FirstOrDefaultAsync(u => u.Email == email)
+                ?? throw new KeyNotFoundException("User not found.");
         }
 
-        public async Task<List<User?>> GetFollowersAsync(int userId)
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _context.Follows
-                .Where(f => f.SeguidoId == userId)
-                .Include(f => f.Follower)
-                .Select(f => f.Follower)
-                .ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
-        public async Task<List<User?>> GetFollowingAsync(int userId)
+        public async Task<User> AddAsync(User user)
         {
-            return await _context.Follows
-                .Where(f => f.SeguidorId == userId)
-                .Include(f => f.Following)
-                .Select(f => f.Following)
-                .ToListAsync();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
 
-        public async Task<bool> IsFollowingAsync(int followerId, int followedId)
+        public async Task<User> UpdateAsync(User user)
         {
-            return await _context.Follows
-                .AnyAsync(f => f.SeguidorId == followerId && f.SeguidoId == followedId);
-        }
-
-        public async Task FollowUserAsync(int followerId, int followedId)
-        {
-            var follow = new Follow
+            var existingUser = await GetUserByIdAsync(user.UserId);
+            if (existingUser == null)
             {
-                SeguidorId = followerId,
-                SeguidoId = followedId
-            };
-
-            await _context.Follows.AddAsync(follow);
-        }
-
-        public async Task UnfollowUserAsync(int followerId, int followedId)
-        {
-            var follow = await _context.Follows
-                .FirstOrDefaultAsync(f => f.SeguidorId == followerId && f.SeguidoId == followedId);
-
-            if (follow != null)
-            {
-                _context.Follows.Remove(follow);
+                throw new KeyNotFoundException("User not found.");
             }
+
+            _context.Entry(existingUser).CurrentValues.SetValues(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<bool> DeleteAsync(int userId)
+        {
+            var user = await GetUserByIdAsync(userId);
+            if (user == null) return false;
+
+            _context.Users.Remove(user);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

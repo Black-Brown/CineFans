@@ -1,128 +1,40 @@
-using CineFansApp.Application.Interfaces;
-using CineFansApp.Domain.DTOs;
-using CineFansApp.Frontend.ViewModels;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+﻿using CineFansApp.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CineFansApp.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IAuthService _authService;
-        private readonly IUserService _userService;
-
-        public AccountController(IAuthService authService, IUserService userService)
-        {
-            _authService = authService;
-            _userService = userService;
-        }
-
         [HttpGet]
         public IActionResult Login()
         {
-            if (User?.Identity?.IsAuthenticated == false)
-            {
-                return View();
-            }
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginVM model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _authService.ValidateUserAsync(model.Email, model.Password);
-                if (result.Success)
-                {
-                    var user = result.Data;
-                    await SignInUserAsync(user);
-                    return RedirectToAction("Index", "Home");
-                }
-
-                ModelState.AddModelError(string.Empty, result.Message ?? string.Empty);
-            }
-
-            return View(model);
+            return View();
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            if (User?.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Home");
-            }
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterVM model)
+        public IActionResult Login(LoginViewModel model)
         {
-            if (User?.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            if (!ModelState.IsValid)
+                return View(model);
 
-            if (ModelState.IsValid)
-            {
-                var result = await _authService.RegisterUserAsync(new UserDto
-                {
-                    Nombre = model.Nombre,
-                    Email = model.Email,
-                    FechaRegistro = DateTime.UtcNow
-                }, model.Password);
-
-                if (result.Success)
-                {
-                    var user = result.Data;
-                    await SignInUserAsync(user);
-                    return RedirectToAction("Index", "Home");
-                }
-
-                ModelState.AddModelError(string.Empty, result.Message ?? string.Empty);
-            }
-
-            return View(model);
-        }
-
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            // Aquí irá la lógica de autenticación con AuthService
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize]
-        public IActionResult Profile()
+        [HttpPost]
+        public IActionResult Register(RegisterViewModel model)
         {
-            int userId = int.Parse(User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            return RedirectToAction("Index", "Profile", new { id = userId });
-        }
+            if (!ModelState.IsValid)
+                return View(model);
 
-        private async Task SignInUserAsync(UserDto user)
-        {
-            var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                    new Claim(ClaimTypes.Name, user.Nombre ?? string.Empty),
-                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
-                };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
+            // Aquí irá la lógica de registro con AuthService
+            return RedirectToAction("Login", "Account");
         }
     }
 }

@@ -1,5 +1,6 @@
 using CineFansApp.Application.Interfaces;
 using CineFansApp.Application.Services;
+using CineFansApp.Domain.Interfaces;
 using CineFansApp.Infrastructure.Data;
 using CineFansApp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -18,19 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Registrar repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IMovieRepository, MovieRepository>();
-builder.Services.AddScoped<IGenreRepository, GenreRepository>();
-builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 // Registrar servicios
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IMovieService, MovieService>();
-builder.Services.AddScoped<IGenreService, GenreService>();
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+
+
 
 // Configurar autenticación
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
