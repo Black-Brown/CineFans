@@ -1,6 +1,6 @@
 ﻿using CineFans.Domain.Entities;
 
-namespace CineFans.Domain.Interface
+namespace CineFans.Domain.Interfaces
 {
     internal interface IUsersRepository
     {

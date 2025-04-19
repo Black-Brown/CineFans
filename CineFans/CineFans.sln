@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFans.Web", "CineFans.Web\CineFans.Web.csproj", "{D3E6EC40-0804-4C13-A163-8B037FAA9E78}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFans.Domain", "CineFans.Domain\CineFans.Domain.csproj", "{AEA6E50A-690D-4CB5-A386-AC9CF398C89E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineFans.Application", "CineFans.Application\CineFans.Application.csproj", "{BD874DD3-3D79-4520-938A-C3B079153463}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +15,6 @@ Global
 		{D3E6EC40-0804-4C13-A163-8B037FAA9E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3E6EC40-0804-4C13-A163-8B037FAA9E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3E6EC40-0804-4C13-A163-8B037FAA9E78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AEA6E50A-690D-4CB5-A386-AC9CF398C89E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AEA6E50A-690D-4CB5-A386-AC9CF398C89E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEA6E50A-690D-4CB5-A386-AC9CF398C89E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AEA6E50A-690D-4CB5-A386-AC9CF398C89E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD874DD3-3D79-4520-938A-C3B079153463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD874DD3-3D79-4520-938A-C3B079153463}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD874DD3-3D79-4520-938A-C3B079153463}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD874DD3-3D79-4520-938A-C3B079153463}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

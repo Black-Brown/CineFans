@@ -13,4 +13,17 @@ using CineFans.Web.Models;
         }
 
         public DbSet<CineFans.Web.Models.Users> Users { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Movie> Movies { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Genre> Genres { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Posts> Posts { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Comments> Comments { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Followers> Followers { get; set; } = default!;
+
+        public DbSet<CineFans.Web.Models.Likes> Likes { get; set; } = default!;
+
     }
