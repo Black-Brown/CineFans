@@ -1,156 +1,134 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CineFans.Web.Models;
+using CineFans.Common.Requests;
+using CineFans.Web.ViewModels;
+using System.Net;
 
 namespace CineFans.Web.Controllers
 {
     public class CommentsController : Controller
     {
-        private readonly CineFansDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public CommentsController(CineFansDbContext context)
+        public CommentsController(IHttpClientFactory httpClientFactory)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
-        // GET: Comments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Comments.ToListAsync());
-        }
-
-        // GET: Comments/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comments = await _context.Comments
-                .FirstOrDefaultAsync(m => m.CommentId == id);
-            if (comments == null)
-            {
-                return NotFound();
-            }
-
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comments = await client.GetFromJsonAsync<List<CommentViewModel>>("comments");
             return View(comments);
         }
 
-        // GET: Comments/Create
+        public async Task<IActionResult> Details(int id)
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
+
+            if (comment == null)
+                return NotFound();
+
+            return View(comment);
+        }
+
         public IActionResult Create()
         {
-            return View();
+            return View(new CommentViewModel());
         }
 
-        // POST: Comments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CommentId,PostId,UserId,Text,Date")] Comments comments)
+        public async Task<IActionResult> Create(CommentViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var request = new CreateCommentRequest
             {
-                _context.Add(comments);
-                await _context.SaveChangesAsync();
+                PostId = model.PostId,
+                UserId = model.UserId,
+                Text = model.Text,
+                Date = model.Date
+            };
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PostAsJsonAsync("comments", request);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(comments);
+
+            ModelState.AddModelError("", "Error al crear el comentario.");
+            return View(model);
         }
 
-        // GET: Comments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
 
-            var comments = await _context.Comments.FindAsync(id);
-            if (comments == null)
-            {
+            if (comment == null)
                 return NotFound();
-            }
-            return View(comments);
+
+            return View(comment);
         }
 
-        // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CommentId,PostId,UserId,Text,Date")] Comments comments)
+        public async Task<IActionResult> Edit(int id, CommentViewModel model)
         {
-            if (id != comments.CommentId)
-            {
+            if (id != model.CommentId)
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var request = new UpdateCommentRequest
             {
-                try
-                {
-                    _context.Update(comments);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CommentsExists(comments.CommentId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                CommentId = model.CommentId,
+                PostId = model.PostId,
+                UserId = model.UserId,
+                Text = model.Text,
+                Date = model.Date
+            };
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PutAsJsonAsync("comments", request);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(comments);
+
+            ModelState.AddModelError("", "Error al actualizar el comentario.");
+            return View(model);
         }
 
-        // GET: Comments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
 
-            var comments = await _context.Comments
-                .FirstOrDefaultAsync(m => m.CommentId == id);
-            if (comments == null)
-            {
+            if (comment == null)
                 return NotFound();
-            }
 
-            return View(comments);
+            return View(comment);
         }
 
-        // POST: Comments/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comments = await _context.Comments.FindAsync(id);
-            if (comments != null)
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.DeleteAsync($"comments/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction(nameof(Index));
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                _context.Comments.Remove(comments);
+                ModelState.AddModelError("", "El comentario no existe.");
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CommentsExists(int id)
-        {
-            return _context.Comments.Any(e => e.CommentId == id);
+            ModelState.AddModelError("", "Error al eliminar el comentario.");
+            return RedirectToAction(nameof(Delete), new { id });
         }
     }
 }

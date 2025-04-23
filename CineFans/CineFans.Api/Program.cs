@@ -1,15 +1,42 @@
+using Microsoft.EntityFrameworkCore;
+using CineFans.Application.Contracts;
+using CineFans.Application.Services;
+using CineFans.Infrastructure.Repositories;
+using CineFans.Infrastructure.Interface;
+using CineFans.Domain.Entities;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ----------------------------
+// Configuración de servicios
+// ----------------------------
 
+// DbContext
+builder.Services.AddDbContext<CineFansDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CineFansDbContext")));
+
+// Servicios personalizados
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+
+// Swagger y controladores
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ----------------------------
+// Middleware
+// ----------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +44,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

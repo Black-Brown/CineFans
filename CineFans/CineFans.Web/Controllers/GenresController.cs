@@ -1,156 +1,132 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
+using CineFans.Common.Requests;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CineFans.Web.Models;
+using CineFans.Web.ViewModels;
+using System.Net;
 
 namespace CineFans.Web.Controllers
 {
     public class GenresController : Controller
     {
-        private readonly CineFansDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public GenresController(CineFansDbContext context)
+        public GenresController(IHttpClientFactory httpClientFactory)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
-        // GET: Genres
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Genres.ToListAsync());
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
+            return View(genres);
         }
 
-        // GET: Genres/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genre = await client.GetFromJsonAsync<GenreViewModel>($"genres/{id}");
 
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.GenreId == id);
             if (genre == null)
-            {
                 return NotFound();
-            }
 
             return View(genre);
         }
 
-        // GET: Genres/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new GenreViewModel());
         }
 
-        // POST: Genres/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GenreId,Name")] Genre genre)
+        public async Task<IActionResult> Create(GenreViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var request = new CreateGenreRequest
             {
-                _context.Add(genre);
-                await _context.SaveChangesAsync();
+                Name = model.Name
+            };
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PostAsJsonAsync("genres", request);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(genre);
+
+            ModelState.AddModelError("", "Error al crear el género.");
+            return View(model);
         }
 
-        // GET: Genres/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genre = await client.GetFromJsonAsync<GenreViewModel>($"genres/{id}");
 
-            var genre = await _context.Genres.FindAsync(id);
             if (genre == null)
-            {
                 return NotFound();
-            }
-            return View(genre);
+
+            return View(genre); 
         }
 
-        // POST: Genres/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GenreId,Name")] Genre genre)
+        public async Task<IActionResult> Edit(int id, GenreViewModel model)
         {
-            if (id != genre.GenreId)
-            {
+            if (id != model.GenreId)
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var updateRequest = new UpdateGenreRequest
             {
-                try
-                {
-                    _context.Update(genre);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GenreExists(genre.GenreId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                Id = model.GenreId,
+                Name = model.Name
+            };
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PutAsJsonAsync("genres", updateRequest);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(genre);
+
+            ModelState.AddModelError("", "Error al editar el género.");
+            return View(model);
         }
 
-        // GET: Genres/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genre = await client.GetFromJsonAsync<GenreViewModel>($"genres/{id}");
 
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.GenreId == id);
             if (genre == null)
-            {
                 return NotFound();
-            }
 
             return View(genre);
         }
 
-        // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre != null)
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.DeleteAsync($"Genres/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction(nameof(Index));
+
+            // Manejo específico para "No encontrado"
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                _context.Genres.Remove(genre);
+                ModelState.AddModelError("", "El género no existe.");
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // Manejo de otros errores
+            ModelState.AddModelError("", "Error al eliminar el género.");
+            return RedirectToAction(nameof(Delete), new { id });
         }
 
-        private bool GenreExists(int id)
-        {
-            return _context.Genres.Any(e => e.GenreId == id);
-        }
     }
 }

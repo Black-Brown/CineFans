@@ -1,156 +1,144 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
+using CineFans.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CineFans.Web.Models;
 
 namespace CineFans.Web.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly CineFansDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IWebHostEnvironment _environment;
 
-        public UsersController(CineFansDbContext context)
+        public UsersController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
+            _environment = environment;
         }
 
-        // GET: Users
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var users = await client.GetFromJsonAsync<List<UsersViewModel>>("users");
+            return View(users);
         }
 
-        // GET: Users/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var user = await client.GetFromJsonAsync<UsersViewModel>($"users/{id}");
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
             if (user == null)
-            {
                 return NotFound();
-            }
 
             return View(user);
         }
 
-        // GET: Users/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Name,Email,PasswordHash,ProfilePicture,RegistrationDate")] Users user)
+        public async Task<IActionResult> Create(UsersViewModel model, IFormFile ProfileImage)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            string imagePath = string.Empty; // Initialize with an empty string to avoid null  
+
+            if (ProfileImage != null && ProfileImage.Length > 0)
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
+                // Generate a unique name for the image  
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfileImage.FileName);
+
+                // Physical path to save the file  
+                var filePath = Path.Combine(_environment.WebRootPath, "Images", "profiles", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ProfileImage.CopyToAsync(stream);
+                }
+
+                // Virtual path to save in the database or send to the API  
+                imagePath = $"/Images/profiles/{fileName}";
+            }
+
+            model.ProfilePicture = imagePath;
+            model.RegistrationDate = DateTime.Now;
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PostAsJsonAsync("users", model);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(user);
+
+            ModelState.AddModelError("", "Error al crear el usuario.");
+            return View(model);
         }
 
-        // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var user = await client.GetFromJsonAsync<UsersViewModel>($"users/{id}");
 
-            var user = await _context.Users.FindAsync(id);
             if (user == null)
-            {
                 return NotFound();
-            }
+
             return View(user);
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,Name,Email,PasswordHash,ProfilePicture,RegistrationDate")] Users user)
+        public async Task<IActionResult> Edit(int id, UsersViewModel model, IFormFile ProfileImage)
         {
-            if (id != user.UserId)
-            {
+            if (id != model.UserId)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Subir imagen si se incluye una nueva
+            if (ProfileImage != null && ProfileImage.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfileImage.FileName);
+                var filePath = Path.Combine(_environment.WebRootPath, "Images", "profiles", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ProfileImage.CopyToAsync(stream);
+                }
+
+                model.ProfilePicture = $"/Images/profiles/{fileName}";
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.UserId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PutAsJsonAsync($"users/{id}", model);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(user);
+
+            ModelState.AddModelError("", "Error al actualizar el usuario.");
+            return View(model);
         }
 
-        // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var user = await client.GetFromJsonAsync<UsersViewModel>($"users/{id}");
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
             if (user == null)
-            {
                 return NotFound();
-            }
 
             return View(user);
         }
-
-        // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.DeleteAsync($"api/Genres/{id}");
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction(nameof(Index));
 
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.UserId == id);
+            ModelState.AddModelError("", "Error al eliminar el género.");
+            var genre = await client.GetFromJsonAsync<GenreViewModel>($"api/Genres/{id}");
+            return View("Delete", genre);
         }
     }
 }

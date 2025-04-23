@@ -1,54 +1,46 @@
-﻿@model CineFans.Web.Models.Movie
+﻿@model CineFans.Web.ViewModels.MovieViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles de Película";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Movie</h4>
+<div class="container mt-4">
+    <h1><i class="fas fa-info-circle"></i> @Model.Title</h1>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Year)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Year)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Director)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Director)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GenreId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GenreId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MovieId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+    <div class="card shadow">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@Model.ImageUrl" class="img-fluid rounded-start" alt="Poster de @Model.Title">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Descripción:</dt>
+                        <dd class="col-sm-9">@Model.Description</dd>
+
+                        <dt class="col-sm-3">Año:</dt>
+                        <dd class="col-sm-9">@Model.Year</dd>
+
+                        <dt class="col-sm-3">Director:</dt>
+                        <dd class="col-sm-9">@Model.Director</dd>
+
+                        <dt class="col-sm-3">Género:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">@Model.Genre.Name</span>
+                        </dd>
+                    </dl>
+
+                    <div class="mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.MovieId" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> Volver al Listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

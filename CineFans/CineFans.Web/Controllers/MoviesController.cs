@@ -1,156 +1,191 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
+using CineFans.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CineFans.Web.Models;
 
 namespace CineFans.Web.Controllers
 {
     public class MoviesController : Controller
     {
-        private readonly CineFansDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IWebHostEnvironment _environment;
 
-        public MoviesController(CineFansDbContext context)
+        public MoviesController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
+            _environment = environment;
         }
 
-        // GET: Movies
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Movies.ToListAsync());
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var movies = await client.GetFromJsonAsync<List<MovieViewModel>>("movies");
+            return View(movies);
         }
 
-        // GET: Movies/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            try
+            {
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
+                if (movie == null) return NotFound();
+                return View(movie);
+            }
+            catch
             {
                 return NotFound();
             }
-
-            var movie = await _context.Movies
-                .FirstOrDefaultAsync(m => m.MovieId == id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            return View(movie);
         }
 
-        // GET: Movies/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
+
+            ViewBag.Genres = new SelectList(genres, "GenreId", "Name");
             return View();
         }
 
-        // POST: Movies/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MovieId,Title,Description,Year,Director,GenreId,ImageUrl")] Movie movie)
+        public async Task<IActionResult> Create(MovieViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
+                await CargarGenerosEnViewBag();
+                return View(model);
+            }
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.ImageFile.FileName);
+                var filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(stream);
+                }
+
+                model.ImageUrl = $"/uploads/{fileName}";
+            }
+
+            var form = CrearMultipartFormData(model);
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PostAsync("movies", form);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(movie);
+
+            ModelState.AddModelError("", "Error al crear la película.");
+            await CargarGenerosEnViewBag();
+            return View(model);
         }
 
-        // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
 
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
+            try
+            {
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
+                var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
+
+                if (movie == null)
+                    return NotFound();
+
+                ViewBag.Genres = new SelectList(genres, "GenreId", "Name", movie.GenreId);
+                return View(movie);
+            }
+            catch
             {
                 return NotFound();
             }
-            return View(movie);
         }
 
-        // POST: Movies/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MovieId,Title,Description,Year,Director,GenreId,ImageUrl")] Movie movie)
+        public async Task<IActionResult> Edit(int id, MovieViewModel model)
         {
-            if (id != movie.MovieId)
-            {
+            if (id != model.MovieId)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                await CargarGenerosEnViewBag(model.GenreId);
+                return View(model);
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MovieExists(movie.MovieId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+            var form = CrearMultipartFormData(model, true);
+
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.PutAsync($"movies/{id}", form);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
-            }
-            return View(movie);
+
+            ModelState.AddModelError("", "Error al editar la película.");
+            await CargarGenerosEnViewBag(model.GenreId);
+            return View(model);
         }
 
-        // GET: Movies/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+
+            try
+            {
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
+                if (movie == null)
+                    return NotFound();
+
+                return View(movie);
+            }
+            catch
             {
                 return NotFound();
             }
-
-            var movie = await _context.Movies
-                .FirstOrDefaultAsync(m => m.MovieId == id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            return View(movie);
         }
 
-        // POST: Movies/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie != null)
-            {
-                _context.Movies.Remove(movie);
-            }
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var response = await client.DeleteAsync($"movies/{id}");
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction(nameof(Index));
+
+            ModelState.AddModelError("", "No se pudo eliminar la película.");
+            return RedirectToAction(nameof(Delete), new { id });
         }
 
-        private bool MovieExists(int id)
+        // Función auxiliar para evitar repetir código
+        private MultipartFormDataContent CrearMultipartFormData(MovieViewModel model, bool incluirId = false)
         {
-            return _context.Movies.Any(e => e.MovieId == id);
+            var form = new MultipartFormDataContent();
+
+            if (incluirId)
+                form.Add(new StringContent(model.MovieId.ToString()), "MovieId");
+
+            form.Add(new StringContent(model.Title ?? ""), "Title");
+            form.Add(new StringContent(model.Description ?? ""), "Description");
+            form.Add(new StringContent(model.Year.ToString()), "Year");
+            form.Add(new StringContent(model.Director ?? ""), "Director");
+            form.Add(new StringContent(model.GenreId.ToString()), "GenreId");
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                form.Add(new StreamContent(model.ImageFile.OpenReadStream()), "ImageFile", model.ImageFile.FileName);
+            }
+
+            return form;
+        }
+
+        private async Task CargarGenerosEnViewBag(int? selectedGenreId = null)
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
+            ViewBag.Genres = new SelectList(genres, "GenreId", "Name", selectedGenreId);
         }
     }
 }

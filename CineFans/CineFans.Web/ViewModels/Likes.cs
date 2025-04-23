@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CineFans.Web.Models
+namespace CineFans.Web.ViewModels
 {
     [PrimaryKey(nameof(PostId), nameof(UserId))]
     public class Likes

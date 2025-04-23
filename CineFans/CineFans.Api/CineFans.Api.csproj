@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CIneFans.Application\CIneFans.Application.csproj" />
+    <ProjectReference Include="..\CineFans.Common\CineFans.Common.csproj" />
+    <ProjectReference Include="..\CineFans.Domain\CineFans.Domain.csproj" />
+    <ProjectReference Include="..\CineFans.Persistences\CineFans.Persistences.csproj" />
   </ItemGroup>
 
 </Project>

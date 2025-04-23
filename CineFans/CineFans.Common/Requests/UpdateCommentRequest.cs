@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CineFans.Web.Models
+﻿namespace CineFans.Common.Requests
 {
-    public class Comments
+    public class UpdateCommentRequest
     {
-        [Key]
         public int CommentId { get; set; }
         public int PostId { get; set; }
         public int UserId { get; set; }

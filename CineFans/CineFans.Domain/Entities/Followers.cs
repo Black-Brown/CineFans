@@ -9,5 +9,9 @@ namespace CineFans.Domain.Entities
     {
         public int FollowerId { get; set; }
         public int FollowedId { get; set; }
+
+        // Propiedades de navegación
+        public User FollowerUser { get; set; } = new User();
+        public User FollowedUser { get; set; } = new User();
     }
 }

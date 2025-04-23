@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CineFans.Web.Models;
+using CineFans.Domain.Entities;
 
 namespace CineFans.Web.Controllers
 {
@@ -53,7 +53,7 @@ namespace CineFans.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FollowerId,FollowedId")] Followers followers)
+        public async Task<IActionResult> Create([Bind("FollowerId,FollowedId")] Follower followers)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace CineFans.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("FollowerId,FollowedId")] Followers followers)
+        public async Task<IActionResult> Edit(int id, [Bind("FollowerId,FollowedId")] Follower followers)
         {
             if (id != followers.FollowerId)
             {

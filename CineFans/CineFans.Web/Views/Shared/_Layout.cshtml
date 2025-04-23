@@ -1,10 +1,15 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var userName = Context.Session.GetString("UserName");
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CineFans.Web</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CineFans.Web.styles.css" asp-append-version="true" />
 </head>
@@ -42,10 +47,31 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Followers" asp-action="Index">Followers</a>
-                        </li
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Likes" asp-action="Index">Likes</a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (!string.IsNullOrEmpty(userName))
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">Hola, @userName</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Logout">Cerrar sesión</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Registrarse</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

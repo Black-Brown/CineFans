@@ -12,5 +12,9 @@ namespace CineFans.Domain.Entities
         public int UserId { get; set; }
         public string Text { get; set; } = string.Empty;
         public DateTime Date { get; set; }
+
+        // Propiedades de navegación
+        public Post Post { get; set; } = new Post();
+        public User User { get; set; } = new User();
     }
 }

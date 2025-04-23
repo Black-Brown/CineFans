@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CineFans.Web.Models
+namespace CineFans.Web.ViewModels
 {
-    public class Users
+    public class UsersViewModel
     {
         [Key]
         public int UserId { get; set; }

@@ -1,4 +1,5 @@
-﻿@model CineFans.Web.Models.Users
+﻿@model CineFans.Web.ViewModels.UsersViewModel
+
 
 @{
     ViewData["Title"] = "Edit";
@@ -10,7 +11,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="UserId" />
             <div class="form-group">
@@ -29,9 +30,14 @@
                 <span asp-validation-for="PasswordHash" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ProfilePicture" class="control-label"></label>
-                <input asp-for="ProfilePicture" class="form-control" />
-                <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+                <label>Foto de perfil</label>
+                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                {
+                    <div class="mb-3">
+                        <img src="@Model.ProfilePicture" class="img-thumbnail" width="200" />
+                    </div>
+                }
+                <input type="file" name="ProfileImage" class="form-control" />
             </div>
             <div class="form-group">
                 <label asp-for="RegistrationDate" class="control-label"></label>
@@ -52,3 +58,5 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+

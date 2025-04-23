@@ -20,3 +20,28 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.movie-poster {
+    height: 300px;
+    object-fit: cover;
+    object-position: top;
+}
+
+.genre-badge {
+    position: absolute;
+    top: -20px;
+    right: 10px;
+}
+
+.card {
+    transition: transform 0.2s;
+    border-radius: 15px;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+.dropdown-menu {
+    min-width: 150px;
+}
