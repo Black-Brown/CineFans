@@ -2,12 +2,9 @@
 
 namespace CineFans.Infrastructure.Interface
 {
-    public interface ICommentRepository
+    public interface ICommentRepository : IGenericRepository<Comment>
     {
-        Task<List<Comment>> GetAllAsync();
-        Task<Comment?> GetByIdAsync(int id);
-        Task AddAsync(Comment comment);
-        Task UpdateAsync(Comment comment);
-        Task DeleteAsync(int id);
+        Task<List<Comment>> GetAllWithNavigationAsync();
+        Task<Comment?> GetByIdWithNavigationAsync(int id);
     }
 }

@@ -22,6 +22,7 @@ namespace CineFans.Application.Services
                 Name = request.Name,
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                ProfilePicture = request.ProfilePicture ?? string.Empty, // Asigna la URL de la imagen aquí
                 RegistrationDate = DateTime.UtcNow
             };
 
@@ -87,6 +88,12 @@ namespace CineFans.Application.Services
 
             await _userRepository.DeleteAsync(user);
             return true;
+        }
+
+        public async Task<bool> UserExistsAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user != null;
         }
     }
 }

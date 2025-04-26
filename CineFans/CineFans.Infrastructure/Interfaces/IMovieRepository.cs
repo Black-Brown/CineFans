@@ -1,13 +1,14 @@
-﻿using CineFans.Domain.Entities;
+﻿// En CineFans.Infrastructure.Interface
+using CineFans.Domain.Entities;
 
-namespace CineFans.Infrastructure.Interface
+public interface IMovieRepository
 {
-    public interface IMovieRepository
-    {
-        Task<List<Movie>> GetAllAsync();
-        Task<Movie?> GetByIdAsync(int id);
-        Task AddAsync(Movie movie);
-        Task UpdateAsync(Movie movie);
-        Task<bool> DeleteAsync(int id);
-    }
+    Task<Movie> GetByIdAsync(int id);
+    Task<IEnumerable<Movie>> GetAllAsync();
+    Task<Movie> CreateAsync(Movie movie);
+    Task<Movie> AddAsync(Movie movie); // Add this method to resolve the issue
+    Task<bool> UpdateAsync(Movie movie);
+    Task<bool> DeleteAsync(int id);
+    Task<string?> GetUserNameByIdAsync(int id);
+
 }

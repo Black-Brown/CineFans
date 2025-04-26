@@ -1,34 +1,43 @@
 ﻿using System.Net.Http.Json;
 using CineFans.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using CineFans.Common.Responses;
 
 namespace CineFans.Web.Controllers
 {
+    [Route("Movies/[action]")]
     public class MoviesController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IWebHostEnvironment _environment;
+        private readonly string _uploadFolder;
 
-        public MoviesController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment)
+        // Inyectamos IConfiguration para acceder a la configuración de la carpeta de subida
+        public MoviesController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _environment = environment;
+            _uploadFolder = configuration["FileStorage:MovieUploadFolder"] ?? throw new ArgumentNullException(nameof(configuration), "Upload folder configuration is missing.");
         }
 
+        // Obtener todas las películas
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var movies = await client.GetFromJsonAsync<List<MovieViewModel>>("movies");
+            var movies = await client.GetFromJsonAsync<List<MovieViewModel>>("movie");
             return View(movies);
         }
 
+        // Obtener detalles de una película
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
             try
             {
-                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"Movie/{id}"); // Ajustado a la ruta de la API
                 if (movie == null) return NotFound();
                 return View(movie);
             }
@@ -38,63 +47,70 @@ namespace CineFans.Web.Controllers
             }
         }
 
-        public async Task<IActionResult> Create()
+        // Crear una nueva película
+        public IActionResult Create()
         {
-            var client = _httpClientFactory.CreateClient("CineFansApi");
-            var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
-
-            ViewBag.Genres = new SelectList(genres, "GenreId", "Name");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(MovieViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(MovieViewModel model, IFormFile ImageFile)
         {
             if (!ModelState.IsValid)
             {
-                await CargarGenerosEnViewBag();
                 return View(model);
             }
 
-            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            // Guardar la imagen en la carpeta wwwroot/uploads
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                var fileName = Guid.NewGuid() + Path.GetExtension(model.ImageFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
                 var filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                try
                 {
-                    await model.ImageFile.CopyToAsync(stream);
-                }
+                    var directoryPath = Path.GetDirectoryName(filePath);
+                    if (directoryPath != null && !Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
 
-                model.ImageUrl = $"/uploads/{fileName}";
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+
+                    model.ImageUrl = $"/uploads/{fileName}";
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error al subir la imagen: {ex.Message}");
+                    return View(model);
+                }
             }
 
-            var form = CrearMultipartFormData(model);
-
+            // Enviar la nueva película a la API
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PostAsync("movies", form);
+            var response = await client.PostAsJsonAsync("movie", model); // Ajustado a la ruta de la API
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
             ModelState.AddModelError("", "Error al crear la película.");
-            await CargarGenerosEnViewBag();
             return View(model);
         }
 
+        // Editar una película existente
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-
             try
             {
-                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
-                var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
-
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"Movie/{id}"); // Ajustado a la ruta de la API
                 if (movie == null)
                     return NotFound();
 
-                ViewBag.Genres = new SelectList(genres, "GenreId", "Name", movie.GenreId);
                 return View(movie);
             }
             catch
@@ -104,6 +120,7 @@ namespace CineFans.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MovieViewModel model)
         {
             if (id != model.MovieId)
@@ -111,30 +128,55 @@ namespace CineFans.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                await CargarGenerosEnViewBag(model.GenreId);
                 return View(model);
             }
 
-            var form = CrearMultipartFormData(model, true);
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                var filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
+
+                try
+                {
+                    var directoryPath = Path.GetDirectoryName(filePath);
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+
+                        if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+                    }
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await model.ImageFile.CopyToAsync(stream);
+                    model.ImageUrl = $"/uploads/{fileName}";
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Error al subir la imagen.");
+                    return View(model);
+                }
+            }
 
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PutAsync($"movies/{id}", form);
+            var response = await client.PutAsJsonAsync($"Movie/{id}", model); // Ajustado a la ruta de la API
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
             ModelState.AddModelError("", "Error al editar la película.");
-            await CargarGenerosEnViewBag(model.GenreId);
             return View(model);
         }
 
+        // Eliminar una película
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-
             try
             {
-                var movie = await client.GetFromJsonAsync<MovieViewModel>($"movies/{id}");
+                var movie = await client.GetFromJsonAsync<MovieViewModel>($"Movie/{id}"); // Ajustado a la ruta de la API
                 if (movie == null)
                     return NotFound();
 
@@ -150,7 +192,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.DeleteAsync($"movies/{id}");
+            var response = await client.DeleteAsync($"Movie/{id}"); // Ajustado a la ruta de la API
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
@@ -159,33 +201,5 @@ namespace CineFans.Web.Controllers
             return RedirectToAction(nameof(Delete), new { id });
         }
 
-        // Función auxiliar para evitar repetir código
-        private MultipartFormDataContent CrearMultipartFormData(MovieViewModel model, bool incluirId = false)
-        {
-            var form = new MultipartFormDataContent();
-
-            if (incluirId)
-                form.Add(new StringContent(model.MovieId.ToString()), "MovieId");
-
-            form.Add(new StringContent(model.Title ?? ""), "Title");
-            form.Add(new StringContent(model.Description ?? ""), "Description");
-            form.Add(new StringContent(model.Year.ToString()), "Year");
-            form.Add(new StringContent(model.Director ?? ""), "Director");
-            form.Add(new StringContent(model.GenreId.ToString()), "GenreId");
-
-            if (model.ImageFile != null && model.ImageFile.Length > 0)
-            {
-                form.Add(new StreamContent(model.ImageFile.OpenReadStream()), "ImageFile", model.ImageFile.FileName);
-            }
-
-            return form;
-        }
-
-        private async Task CargarGenerosEnViewBag(int? selectedGenreId = null)
-        {
-            var client = _httpClientFactory.CreateClient("CineFansApi");
-            var genres = await client.GetFromJsonAsync<List<GenreViewModel>>("genres");
-            ViewBag.Genres = new SelectList(genres, "GenreId", "Name", selectedGenreId);
-        }
     }
 }

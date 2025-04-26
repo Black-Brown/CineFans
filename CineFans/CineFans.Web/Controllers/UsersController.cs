@@ -4,15 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CineFans.Web.Controllers
 {
+    [Route("Users/[action]")]
     public class UsersController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IWebHostEnvironment _environment;
+        private readonly string _uploadFolder;
 
-        public UsersController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment)
+        public UsersController(IHttpClientFactory httpClientFactory, IWebHostEnvironment environment, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _environment = environment;
+            _uploadFolder = configuration["FileStorage:UserUploadFolder"] ?? "images/profiles";
         }
 
         public async Task<IActionResult> Index()
@@ -41,23 +44,30 @@ namespace CineFans.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            string imagePath = string.Empty; // Initialize with an empty string to avoid null  
+            string imagePath = string.Empty;
 
             if (ProfileImage != null && ProfileImage.Length > 0)
             {
-                // Generate a unique name for the image  
+                // Genera un nombre único para la imagen
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfileImage.FileName);
 
-                // Physical path to save the file  
-                var filePath = Path.Combine(_environment.WebRootPath, "Images", "profiles", fileName);
+                // Ruta física para guardar el archivo
+                var filePath = Path.Combine(_environment.WebRootPath, _uploadFolder, fileName);
+
+                // Crear la carpeta si no existe
+                var directoryPath = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await ProfileImage.CopyToAsync(stream);
                 }
 
-                // Virtual path to save in the database or send to the API  
-                imagePath = $"/Images/profiles/{fileName}";
+                // Ruta virtual que se almacenará en la base de datos o se enviará a la API
+                imagePath = $"/{_uploadFolder}/{fileName}";
             }
 
             model.ProfilePicture = imagePath;
@@ -97,14 +107,21 @@ namespace CineFans.Web.Controllers
             if (ProfileImage != null && ProfileImage.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfileImage.FileName);
-                var filePath = Path.Combine(_environment.WebRootPath, "Images", "profiles", fileName);
+                var filePath = Path.Combine(_environment.WebRootPath, _uploadFolder, fileName);
+
+                // Asegúrate de que la carpeta exista
+                var directoryPath = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await ProfileImage.CopyToAsync(stream);
                 }
 
-                model.ProfilePicture = $"/Images/profiles/{fileName}";
+                model.ProfilePicture = $"/{_uploadFolder}/{fileName}";
             }
 
             var client = _httpClientFactory.CreateClient("CineFansApi");
@@ -131,14 +148,15 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.DeleteAsync($"api/Genres/{id}");
-
-            if (response.IsSuccessStatusCode)
+            var user = await client.GetFromJsonAsync<UsersViewModel>($"users/{id}");
+            if (user == null)
+            {
+                ModelState.AddModelError("", "El usuario no existe o ya ha sido eliminado.");
                 return RedirectToAction(nameof(Index));
+            }
 
-            ModelState.AddModelError("", "Error al eliminar el género.");
-            var genre = await client.GetFromJsonAsync<GenreViewModel>($"api/Genres/{id}");
-            return View("Delete", genre);
+            ModelState.AddModelError("", "Error al eliminar el usuario.");
+            return View("Delete", user);
         }
     }
 }

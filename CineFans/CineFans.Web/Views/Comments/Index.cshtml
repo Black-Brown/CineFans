@@ -1,53 +1,41 @@
-﻿@model IEnumerable<CineFans.Web.ViewModels.CommentViewModel>
+﻿@model IEnumerable<CineFans.Web.ViewModels.CommentsViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Comments";
 }
 
-<h1>Index</h1>
+<h1 class="my-4">Comments</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Create New Comment</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.PostId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Text)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Text)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CommentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CommentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CommentId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.UserName)</th>
+                <th>@Html.DisplayNameFor(model => model.MovieTitle)</th>
+                <th>@Html.DisplayNameFor(model => model.Text)</th>
+                <th>@Html.DisplayNameFor(model => model.Date)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.MovieTitle)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Text)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Date)</td>
+                    <td>
+                        <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.CommentId">Edit</a>
+                        <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.CommentId">Details</a>
+                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CommentId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

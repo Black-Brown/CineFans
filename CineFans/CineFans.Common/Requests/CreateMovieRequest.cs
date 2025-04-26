@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace CineFans.Common.Requests
+﻿namespace CineFans.Common.Requests
 {
     public class CreateMovieRequest
     {
@@ -8,7 +6,7 @@ namespace CineFans.Common.Requests
         public string Description { get; set; } = string.Empty;
         public int Year { get; set; }
         public string Director { get; set; } = string.Empty;
-        public int GenreId { get; set; }
-        public IFormFile? ImageFile { get; set; }
+        public string GenreName { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
     }
 }

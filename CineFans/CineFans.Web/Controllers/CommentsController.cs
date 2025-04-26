@@ -1,11 +1,13 @@
 ﻿using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc;
+using CineFans.Common.Dtos;
 using CineFans.Common.Requests;
 using CineFans.Web.ViewModels;
-using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CineFans.Web.Controllers
 {
+    [Route("Comments/[action]")]
     public class CommentsController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -18,14 +20,14 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comments = await client.GetFromJsonAsync<List<CommentViewModel>>("comments");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>("comment");
             return View(comments);
         }
 
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -33,39 +35,49 @@ namespace CineFans.Web.Controllers
             return View(comment);
         }
 
-        public IActionResult Create()
+        // GET: Comments/Create
+        public async Task<IActionResult> Create()
         {
-            return View(new CommentViewModel());
+            var viewModel = new CommentsViewModel();
+            await LoadSelectLists(viewModel);
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CommentViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CommentsViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                await LoadSelectLists(model);
                 return View(model);
+            }
 
             var request = new CreateCommentRequest
             {
-                PostId = model.PostId,
                 UserId = model.UserId,
-                Text = model.Text,
-                Date = model.Date
+                MovieId = model.MovieId,
+                Text = model.Text
             };
 
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PostAsJsonAsync("comments", request);
+            var response = await client.PostAsJsonAsync("comment", request);
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
-            ModelState.AddModelError("", "Error al crear el comentario.");
+            // Leer contenido del error desde la respuesta
+            var errorContent = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", $"Error al crear el comentario: {errorContent}");
+
+            await LoadSelectLists(model);
             return View(model);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -74,7 +86,8 @@ namespace CineFans.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, CommentViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, CommentsViewModel model)
         {
             if (id != model.CommentId)
                 return NotFound();
@@ -85,26 +98,23 @@ namespace CineFans.Web.Controllers
             var request = new UpdateCommentRequest
             {
                 CommentId = model.CommentId,
-                PostId = model.PostId,
-                UserId = model.UserId,
-                Text = model.Text,
-                Date = model.Date
+                Text = model.Text
             };
 
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PutAsJsonAsync("comments", request);
+            var response = await client.PutAsJsonAsync("comment", request);
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
-            ModelState.AddModelError("", "Error al actualizar el comentario.");
+            ModelState.AddModelError("", "Error al editar el comentario.");
             return View(model);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentViewModel>($"comments/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -113,22 +123,38 @@ namespace CineFans.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.DeleteAsync($"comments/{id}");
+            var response = await client.DeleteAsync($"comment/{id}");
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                ModelState.AddModelError("", "El comentario no existe.");
-                return RedirectToAction(nameof(Index));
-            }
-
             ModelState.AddModelError("", "Error al eliminar el comentario.");
-            return RedirectToAction(nameof(Delete), new { id });
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
+            return View("Delete", comment);
+        }
+
+        private async Task LoadSelectLists(CommentsViewModel model)
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+
+            var users = await client.GetFromJsonAsync<List<UserDto>>("users");
+            var movies = await client.GetFromJsonAsync<List<MovieDto>>("movie");
+
+            model.Users = users?.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.Name
+            }).ToList();
+
+            model.Movies = movies?.Select(m => new SelectListItem
+            {
+                Value = m.MovieId.ToString(),
+                Text = m.Title
+            }).ToList();
         }
     }
 }

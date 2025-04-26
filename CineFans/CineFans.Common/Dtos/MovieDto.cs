@@ -7,8 +7,9 @@
         public string Description { get; set; } = string.Empty;
         public int Year { get; set; }
         public string Director { get; set; } = string.Empty;
-        public int GenreId { get; set; }
-        public string ImageUrl { get; set; } = string.Empty;
         public string GenreName { get; set; } = string.Empty;
+
+        // Si puede ser null (cuando aún no hay imagen)
+        public string? ImageUrl { get; set; }
     }
 }

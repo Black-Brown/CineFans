@@ -1,152 +1,133 @@
 ﻿using CineFans.Application.Contracts;
-using CineFans.Common.Dtos;
 using CineFans.Common.Requests;
+using CineFans.Common.Responses;
 using CineFans.Domain.Entities;
 using CineFans.Infrastructure.Interface;
-using System.IO;
 
 namespace CineFans.Application.Services
 {
     public class MovieService : IMovieService
     {
-        private readonly IMovieRepository _movieRepository;
+        private readonly IMovieRepository _movieRepository; // Asumiendo que tienes un repositorio para manejar las películas
 
         public MovieService(IMovieRepository movieRepository)
         {
             _movieRepository = movieRepository;
         }
 
-        public async Task<IEnumerable<MovieDto>> GetAllAsync()
+        // Crear una película
+        public async Task<MovieResponse> CreateAsync(CreateMovieRequest request)
         {
-            var movies = await _movieRepository.GetAllAsync();
-            return movies.Select(m => new MovieDto
-            {
-                MovieId = m.MovieId,
-                Title = m.Title,
-                Description = m.Description,
-                Year = m.Year,
-                Director = m.Director,
-                GenreId = m.GenreId,
-                ImageUrl = m.ImageUrl,
-                GenreName = m.Genre?.Name ?? ""
-            });
-        }
-
-        public async Task<MovieDto?> GetByIdAsync(int id)
-        {
-            var m = await _movieRepository.GetByIdAsync(id);
-            if (m == null) return null;
-
-            return new MovieDto
-            {
-                MovieId = m.MovieId,
-                Title = m.Title,
-                Description = m.Description,
-                Year = m.Year,
-                Director = m.Director,
-                GenreId = m.GenreId,
-                ImageUrl = m.ImageUrl,
-                GenreName = m.Genre?.Name ?? ""
-            };
-        }
-
-        public async Task<MovieDto> CreateAsync(CreateMovieRequest request, string webRootPath)
-        {
-            string? imageUrl = null;
-
-            if (request.ImageFile != null && request.ImageFile.Length > 0)
-            {
-                var uploads = Path.Combine(webRootPath, "uploads");
-                Directory.CreateDirectory(uploads);
-                var fileName = $"{Guid.NewGuid()}_{request.ImageFile.FileName}";
-                var filePath = Path.Combine(uploads, fileName);
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await request.ImageFile.CopyToAsync(stream);
-                imageUrl = $"/uploads/{fileName}";
-            }
-
+            // Crear la entidad Movie a partir del request
             var movie = new Movie
             {
                 Title = request.Title,
                 Description = request.Description,
                 Year = request.Year,
                 Director = request.Director,
-                GenreId = request.GenreId,
-                ImageUrl = imageUrl ?? ""
+                GenreName = request.GenreName,
+                ImageUrl = request.ImageUrl // Si la imagen se proporciona
             };
 
-            await _movieRepository.AddAsync(movie);
+            // Guardar la película en la base de datos
+            var createdMovie = await _movieRepository.AddAsync(movie);
 
-            return new MovieDto
+            // Convertir la entidad Movie en MovieResponse para devolverla
+            return new MovieResponse
+            {
+                MovieId = createdMovie.MovieId,
+                Title = createdMovie.Title,
+                Description = createdMovie.Description,
+                Year = createdMovie.Year,
+                Director = createdMovie.Director,
+                GenreName = createdMovie.GenreName,
+                ImageUrl = createdMovie.ImageUrl
+            };
+        }
+
+        // Obtener una película por ID
+        public async Task<MovieResponse?> GetByIdAsync(int id)
+        {
+            // Obtener la película desde el repositorio
+            var movie = await _movieRepository.GetByIdAsync(id);
+
+            if (movie == null)
+                return null;
+
+            // Convertir la entidad Movie a MovieResponse
+            return new MovieResponse
             {
                 MovieId = movie.MovieId,
                 Title = movie.Title,
                 Description = movie.Description,
                 Year = movie.Year,
                 Director = movie.Director,
-                GenreId = movie.GenreId,
+                GenreName = movie.GenreName,
                 ImageUrl = movie.ImageUrl
             };
         }
 
-        public async Task<MovieDto?> UpdateAsync(UpdateMovieRequest request, string webRootPath)
+        // Obtener todas las películas
+        public async Task<IEnumerable<MovieResponse>> GetAllAsync()
         {
-            var movie = await _movieRepository.GetByIdAsync(request.MovieId);
-            if (movie == null) return null;
+            // Obtener todas las películas desde el repositorio
+            var movies = await _movieRepository.GetAllAsync();
 
+            // Convertir las entidades Movie a MovieResponse
+            return movies.Select(movie => new MovieResponse
+            {
+                MovieId = movie.MovieId,
+                Title = movie.Title,
+                Description = movie.Description,
+                Year = movie.Year,
+                Director = movie.Director,
+                GenreName = movie.GenreName,
+                ImageUrl = movie.ImageUrl
+            });
+        }
+
+        // Actualizar una película
+        public async Task<bool> UpdateAsync(UpdateMovieRequest request)
+        {
+            // Obtener la película existente
+            var movie = await _movieRepository.GetByIdAsync(request.MovieId);
+
+            if (movie == null)
+                return false; // La película no existe
+
+            // Actualizar la película con los nuevos datos
             movie.Title = request.Title;
             movie.Description = request.Description;
             movie.Year = request.Year;
             movie.Director = request.Director;
-            movie.GenreId = request.GenreId;
+            movie.GenreName = request.GenreName;
+            movie.ImageUrl = request.ImageUrl;
 
-            if (request.ImageFile != null && request.ImageFile.Length > 0)
-            {
-                if (!string.IsNullOrEmpty(movie.ImageUrl))
-                {
-                    var oldPath = Path.Combine(webRootPath, movie.ImageUrl.TrimStart('/'));
-                    if (File.Exists(oldPath))
-                    {
-                        File.Delete(oldPath);
-                    }
-                }
-
-                var uploads = Path.Combine(webRootPath, "uploads");
-                Directory.CreateDirectory(uploads);
-                var fileName = $"{Guid.NewGuid()}_{request.ImageFile.FileName}";
-                var filePath = Path.Combine(uploads, fileName);
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await request.ImageFile.CopyToAsync(stream);
-                movie.ImageUrl = $"/uploads/{fileName}";
-            }
-
+            // Guardar los cambios
             await _movieRepository.UpdateAsync(movie);
 
-            return new MovieDto
-            {
-                MovieId = movie.MovieId,
-                Title = movie.Title,
-                Description = movie.Description,
-                Year = movie.Year,
-                Director = movie.Director,
-                GenreId = movie.GenreId,
-                ImageUrl = movie.ImageUrl
-            };
+            return true;
         }
 
+        // Eliminar una película
         public async Task<bool> DeleteAsync(int id)
         {
-            return await _movieRepository.DeleteAsync(id);
+            // Obtener la película a eliminar  
+            var movie = await _movieRepository.GetByIdAsync(id);
+
+            if (movie == null)
+                return false; // La película no existe  
+
+            // Eliminar la película usando el ID en lugar de la entidad  
+            await _movieRepository.DeleteAsync(movie.MovieId);
+
+            return true;
         }
 
-        public Task<MovieDto> CreateAsync(CreateMovieRequest request)
+        public async Task<bool> MovieExistsAsync(int movieId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<MovieDto?> UpdateAsync(UpdateMovieRequest request)
-        {
-            throw new NotImplementedException();
+            var movie = await _movieRepository.GetByIdAsync(movieId);
+            return movie != null;
         }
     }
 }

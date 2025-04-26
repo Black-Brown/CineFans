@@ -27,11 +27,10 @@
                         <dd class="col-sm-8">@Model.Director</dd>
 
                         <dt class="col-sm-4">Género:</dt>
-                        <dd class="col-sm-8">@Model.Genre.Name</dd>
+                        <dd class="col-sm-8">@Model.GenreName</dd> <!-- Cambio aquí -->
                     </dl>
 
-                    <form asp-action="Delete">
-                        <input type="hidden" asp-for="MovieId" />
+                    <form method="post" asp-action="Delete" asp-route-id="@Model.MovieId">
                         <button type="submit" class="btn btn-danger btn-lg">
                             <i class="fas fa-trash"></i> Confirmar Eliminación
                         </button>

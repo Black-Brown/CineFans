@@ -8,106 +8,42 @@
     <h1><i class="fas fa-edit"></i> Editar Película</h1>
     <hr />
 
-    <div class="row">
-        <div class="col-md-8">
-            <form asp-action="Edit" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="MovieId" />
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Title" class="form-label"></label>
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="Year" class="form-label"></label>
-                            <input asp-for="Year" class="form-control" />
-                            <span asp-validation-for="Year" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Director" class="form-label"></label>
-                            <input asp-for="Director" class="form-control" />
-                            <span asp-validation-for="Director" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="GenreId" class="form-label">Género</label>
-
-                            @if (ViewBag.Genres != null)
-                            {
-                                <select asp-for="GenreId"
-                                        asp-items="@(ViewBag.Genres as SelectList)"
-                                        class="form-select">
-                                    <option value="">Seleccione un género</option>
-                                </select>
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning">
-                                    No hay géneros disponibles.
-                                    <a asp-controller="Genres" asp-action="Create">Crea uno primero</a>.
-                                </div>
-                            }
-
-                            <span asp-validation-for="GenreId" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label">Imagen Actual</label>
-                    <div class="current-image mb-2">
-                        <img id="image-preview" src="#" alt="Preview de imagen" style="max-width: 200px; display:none;" />
-                    </div>
-
-                    <label asp-for="ImageFile" class="form-label">Nueva Imagen</label>
-                    <input asp-for="ImageFile" type="file" class="form-control" id="ImageFile" accept=".jpg,.jpeg,.png,.gif" />
-                    <span asp-validation-for="ImageFile" class="text-danger"></span>
-                    <small class="form-text text-muted">Dejar en blanco para mantener la imagen actual</small>
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
-                    <a asp-action="Index" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-times"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="Title" class="form-label">Título</label>
+            <input type="text" class="form-control" id="Title" name="Title" value="@Model.Title" required />
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label for="Description" class="form-label">Descripción</label>
+            <textarea class="form-control" id="Description" name="Description" rows="3" required>@Model.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="Year" class="form-label">Año</label>
+            <input type="number" class="form-control" id="Year" name="Year" value="@Model.Year" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="Director" class="form-label">Director</label>
+            <input type="text" class="form-control" id="Director" name="Director" value="@Model.Director" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="GenreName" class="form-label">Género</label>
+            <input type="text" class="form-control" id="GenreName" name="GenreName" value="@Model.GenreName" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="ImageFile" class="form-label">Imagen</label>
+            <input type="file" class="form-control" id="ImageFile" name="ImageFile" />
+        </div>
+
+        <button type="submit" class="btn btn-warning">
+            <i class="fas fa-save"></i> Guardar cambios
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-list"></i> Volver al Listado
+        </a>
+    </form>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script>
-        // Preview de imagen al seleccionar archivo
-                document.getElementById('ImageFile').addEventListener('change', function(e) {
-            const preview = document.getElementById('image-preview');
-            const file = e.target.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-
-    </script>
-}

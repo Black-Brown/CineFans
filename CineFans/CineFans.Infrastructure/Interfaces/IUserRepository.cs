@@ -9,5 +9,6 @@ namespace CineFans.Infrastructure.Interface
         Task<IEnumerable<User>> GetAllAsync();
         Task UpdateAsync(User user);
         Task DeleteAsync(User user);
+        Task<string?> GetUserNameByIdAsync(int id);
     }
 }

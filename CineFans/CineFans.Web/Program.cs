@@ -41,8 +41,6 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
-builder.Services.AddScoped<IGenreService, GenreService>();
-builder.Services.AddScoped<IGenreRepository, GenreRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -77,8 +75,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Mapea controladores MVC
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

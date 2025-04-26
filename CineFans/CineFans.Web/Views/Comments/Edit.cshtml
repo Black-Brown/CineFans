@@ -1,49 +1,57 @@
-﻿@model CineFans.Web.ViewModels.CommentViewModel
+﻿@model CineFans.Web.ViewModels.CommentsViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Comment";
 }
 
-<h1>Edit</h1>
+<h1>Edit Comment</h1>
 
-<h4>Comments</h4>
+<h4>Comment Details</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <input type="hidden" asp-for="CommentId" />
+
             <div class="form-group">
-                <label asp-for="PostId" class="control-label"></label>
+                <label asp-for="PostId" class="control-label">Post ID</label>
                 <input asp-for="PostId" class="form-control" />
                 <span asp-validation-for="PostId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
+                <label asp-for="UserId" class="control-label">User ID</label>
                 <input asp-for="UserId" class="form-control" />
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
-                <input asp-for="Text" class="form-control" />
+                <label asp-for="Text" class="control-label">Text</label>
+                <textarea asp-for="Text" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
+                <label asp-for="Date" class="control-label">Date</label>
+                <input asp-for="Date" type="date" class="form-control" />
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

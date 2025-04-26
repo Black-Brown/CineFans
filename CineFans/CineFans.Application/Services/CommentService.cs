@@ -1,17 +1,18 @@
 ﻿using CineFans.Application.Contracts;
 using CineFans.Common.Dtos;
 using CineFans.Common.Requests;
-using CineFans.Common.Responses;
 using CineFans.Domain.Entities;
 using CineFans.Infrastructure.Interface;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CineFans.Application.Services
 {
     public class CommentService : ICommentService
     {
-        private readonly IGenericRepository<Comment> _commentRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public CommentService(IGenericRepository<Comment> commentRepository)
+        public CommentService(ICommentRepository commentRepository)
         {
             _commentRepository = commentRepository;
         }
@@ -19,12 +20,11 @@ namespace CineFans.Application.Services
         public async Task<List<CommentDto>> GetAllAsync()
         {
             var comments = await _commentRepository.GetAllAsync();
-
             return comments.Select(c => new CommentDto
             {
                 CommentId = c.CommentId,
-                PostId = c.PostId,
                 UserId = c.UserId,
+                MovieId = c.MovieId,
                 Text = c.Text,
                 Date = c.Date
             }).ToList();
@@ -33,69 +33,50 @@ namespace CineFans.Application.Services
         public async Task<CommentDto?> GetByIdAsync(int id)
         {
             var comment = await _commentRepository.GetByIdAsync(id);
-
             if (comment == null)
                 return null;
 
             return new CommentDto
             {
                 CommentId = comment.CommentId,
-                PostId = comment.PostId,
                 UserId = comment.UserId,
+                MovieId = comment.MovieId,
                 Text = comment.Text,
                 Date = comment.Date
             };
         }
 
-        public async Task<BaseResponse<string>> CreateAsync(CreateCommentRequest request)
+        public async Task<bool> CreateAsync(CreateCommentRequest request)
         {
             var comment = new Comment
             {
-                PostId = request.PostId,
                 UserId = request.UserId,
+                MovieId = request.MovieId,
                 Text = request.Text,
                 Date = DateTime.UtcNow
             };
 
-            var result = await _commentRepository.CreateAsync(comment);
-
-            if (!result)
-                return new BaseResponse<string> { Success = false, Message = "No se pudo crear el comentario." };
-
-            return new BaseResponse<string> { Success = true, Message = "Comentario creado exitosamente." };
+            return await _commentRepository.CreateAsync(comment);
         }
 
-        public async Task<BaseResponse<string>> UpdateAsync(UpdateCommentRequest request)
+        public async Task<bool> UpdateAsync(UpdateCommentRequest request)
         {
-            var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+            var existing = await _commentRepository.GetByIdAsync(request.CommentId);
+            if (existing == null)
+                return false;
 
-            if (comment == null)
-                return new BaseResponse<string> { Success = false, Message = "Comentario no encontrado." };
-
-            comment.Text = request.Text;
-            comment.Date = DateTime.UtcNow;
-
-            var result = await _commentRepository.UpdateAsync(comment);
-
-            if (!result)
-                return new BaseResponse<string> { Success = false, Message = "No se pudo actualizar el comentario." };
-
-            return new BaseResponse<string> { Success = true, Message = "Comentario actualizado exitosamente." };
+            existing.Text = request.Text;
+            return await _commentRepository.UpdateAsync(existing);
         }
 
-        public async Task<BaseResponse<string>> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var comment = await _commentRepository.GetByIdAsync(id);
-
             if (comment == null)
-                return new BaseResponse<string> { Success = false, Message = "Comentario no encontrado." };
+                return false;
 
-            var result = await _commentRepository.DeleteAsync(comment);
-
-            if (!result)
-                return new BaseResponse<string> { Success = false, Message = "No se pudo eliminar el comentario." };
-
-            return new BaseResponse<string> { Success = true, Message = "Comentario eliminado exitosamente." };
+            return await _commentRepository.DeleteAsync(comment);
         }
+
     }
 }

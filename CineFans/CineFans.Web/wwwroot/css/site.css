@@ -22,9 +22,8 @@ body {
 }
 
 .movie-poster {
-    height: 300px;
     object-fit: cover;
-    object-position: top;
+    border-radius: 10px;
 }
 
 .genre-badge {
@@ -36,6 +35,7 @@ body {
 .card {
     transition: transform 0.2s;
     border-radius: 15px;
+
 }
 
     .card:hover {

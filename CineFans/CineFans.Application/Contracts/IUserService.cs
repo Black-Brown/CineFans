@@ -10,5 +10,6 @@ namespace CineFans.Application.Contracts
         Task<IEnumerable<UserResponse>> GetAllUsersAsync();
         Task<bool> UpdateUserAsync(UpdateUserRequest request);
         Task<bool> DeleteUserAsync(int id);
+        Task<bool> UserExistsAsync(int userId);
     }
 }

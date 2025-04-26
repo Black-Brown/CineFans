@@ -1,6 +1,5 @@
 ﻿using CineFans.Common.Dtos;
 using CineFans.Common.Requests;
-using CineFans.Common.Responses;
 
 namespace CineFans.Application.Contracts
 {
@@ -8,8 +7,8 @@ namespace CineFans.Application.Contracts
     {
         Task<List<CommentDto>> GetAllAsync();
         Task<CommentDto?> GetByIdAsync(int id);
-        Task<BaseResponse<string>> CreateAsync(CreateCommentRequest request);
-        Task<BaseResponse<string>> UpdateAsync(UpdateCommentRequest request);
-        Task<BaseResponse<string>> DeleteAsync(int id);
+        Task<bool> CreateAsync(CreateCommentRequest request);
+        Task<bool> UpdateAsync(UpdateCommentRequest request);
+        Task<bool> DeleteAsync(int id);
     }
 }

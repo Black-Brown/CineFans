@@ -20,11 +20,10 @@ namespace CineFans.Web.ViewModels
         [Required(ErrorMessage = "El director es obligatorio")]
         public string Director { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Debe seleccionar un género")]
+        [Required(ErrorMessage = "Debe Agregar un género")]
         [Display(Name = "Género")]
-        public int GenreId { get; set; }
+        public string GenreName { get; set; } = string.Empty;
 
-        public GenreViewModel Genre { get; set; } = new GenreViewModel();
 
         [Required(ErrorMessage = "La imagen es obligatoria")]
         [DataType(DataType.Upload)]

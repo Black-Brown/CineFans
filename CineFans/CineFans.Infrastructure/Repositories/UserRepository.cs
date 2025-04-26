@@ -46,5 +46,11 @@ namespace CineFans.Infrastructure.Repositories
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<string?> GetUserNameByIdAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            return user?.Name ?? "Unknown User";
+        }
     }
 }

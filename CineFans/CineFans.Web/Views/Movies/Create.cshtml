@@ -43,13 +43,9 @@
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="GenreId" class="control-label">Género</label>
-                <select asp-for="GenreId"
-                        asp-items="ViewBag.Genres"
-                        class="form-select">
-                    <option value="">Seleccione un género</option>
-                </select>
-                <span asp-validation-for="GenreId" class="text-danger"></span>
+                <label asp-for="GenreName" class="control-label">Género</label>
+                <input asp-for="GenreName" class="form-control" />
+                <span asp-validation-for="GenreName" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-4">
