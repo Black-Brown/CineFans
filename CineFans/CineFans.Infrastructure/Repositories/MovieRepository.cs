@@ -1,6 +1,7 @@
 ﻿// En CineFans.Infrastructure.Repositories
 using CineFans.Domain.Entities;
 using CineFans.Infrastructure.Context;
+using CineFans.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 
 public class MovieRepository : IMovieRepository
@@ -48,6 +49,7 @@ public class MovieRepository : IMovieRepository
         _context.Movies.Remove(movie);
         return await _context.SaveChangesAsync() > 0;
     }
+
     public async Task<Movie> AddAsync(Movie movie)
     {
         await _context.Movies.AddAsync(movie);
@@ -59,5 +61,19 @@ public class MovieRepository : IMovieRepository
     {
         var user = await _context.Users.FindAsync(userId);
         return user?.Name ?? "Unknown User";
+    }
+
+    // Removed duplicate GetMoviesWithCommentsAsync method  
+    public async Task<List<Movie>> GetMoviesWithCommentsAsync()
+    {
+        return await _context.Movies
+            .Include(m => m.Comments)
+            .Where(m => m.Comments.Any())
+            .ToListAsync();
+    }
+
+    public Task<List<Movie>> GetMoviesByUserIdAsync(int userId)
+    {
+        throw new NotImplementedException();
     }
 }

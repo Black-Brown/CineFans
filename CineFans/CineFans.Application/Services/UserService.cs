@@ -28,7 +28,7 @@ namespace CineFans.Application.Services
             {
                 Name = request.Name,
                 Email = request.Email,
-                PasswordHash = HashPassword(request.Password),
+                PasswordHash = HashPassword(request.Password ?? throw new ArgumentNullException(nameof(request.Password), "Password cannot be null.")),
                 RegistrationDate = DateTime.UtcNow
             };
 

@@ -8,8 +8,8 @@
         public int Year { get; set; }
         public string Director { get; set; } = string.Empty;
         public string GenreName { get; set; } = string.Empty;
-
-        // Si puede ser null (cuando aún no hay imagen)
         public string? ImageUrl { get; set; }
+
+        public List<CommentDto> Comments { get; set; } = new List<CommentDto>();  // Lista de comentarios
     }
 }

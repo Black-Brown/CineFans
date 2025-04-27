@@ -1,8 +1,8 @@
 ﻿using CineFans.Application.Contracts;
 using CineFans.Common.Dtos;
 using CineFans.Domain.Entities;
-using CineFans.Infrastructure.Interfaces;
 using AutoMapper;
+using CineFans.Infrastructure.Interface;
 
 namespace CineFans.Application.Services
 {
@@ -19,23 +19,63 @@ namespace CineFans.Application.Services
 
         public async Task<CommentDto> CreateCommentAsync(CommentDto commentDto)
         {
-            var comment = _mapper.Map<Comment>(commentDto);
-            comment.CreatedAt = DateTime.UtcNow;
+            var comment = new Comment
+            {
+                Text = commentDto.Text,
+                MovieId = commentDto.MovieId,
+                UserId = commentDto.UserId,
+                Date = DateTime.Now
+            };
 
             await _commentRepository.AddAsync(comment);
-            return _mapper.Map<CommentDto>(comment);
+
+            // Opcional: Mapear de vuelta
+            commentDto.CommentId = comment.CommentId;
+            commentDto.Date = comment.Date;
+
+            return commentDto;
         }
 
         public async Task<List<CommentDto>> GetCommentsByMovieIdAsync(int movieId)
         {
-            var comments = await _commentRepository.GetByMovieIdAsync(movieId);
+            var comments = await _commentRepository.GetCommentsByMovieIdAsync(movieId);
             return _mapper.Map<List<CommentDto>>(comments);
         }
 
-        public async Task<List<CommentDto>> GetCommentsByUserIdAsync(int userId)
+        public async Task<List<CommentDto>> GetCommentsByUserIdAsync(int UserId)
         {
-            var comments = await _commentRepository.GetByUserIdAsync(userId);
+            var comments = await _commentRepository.GetCommentsByUserIdAsync(UserId);
             return _mapper.Map<List<CommentDto>>(comments);
+        }
+
+        public async Task<CommentDto> GetCommentByIdAsync(int commentId)
+        {
+            var comment = await _commentRepository.GetByIdAsync(commentId);
+            if (comment == null)
+            {
+                throw new KeyNotFoundException($"Comment with ID {commentId} not found.");
+            }
+
+            return new CommentDto
+            {
+                CommentId = comment.CommentId,
+                MovieId = comment.MovieId,
+                UserId = comment.UserId,
+                Text = comment.Text,
+                Date = comment.Date
+            };
+        }
+
+        public async Task<List<CommentDto>> GetAllCommentsAsync()
+        {
+            var comments = await _commentRepository.GetAllAsync();
+            return _mapper.Map<List<CommentDto>>(comments);
+
+        }
+
+        public Task<List<MovieDto>> GetMoviesWithCommentsAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

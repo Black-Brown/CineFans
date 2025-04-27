@@ -6,9 +6,10 @@
         public int MovieId { get; set; }
         public int UserId { get; set; }
         public string? Text { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime Date { get; set; }
 
-        public Movie Movie { get; set; } = new Movie();
-        public User User { get; set; } = new User();
+        public Movie? Movie { get; set; }
+        public User? User { get; set; }
+
     }
 }

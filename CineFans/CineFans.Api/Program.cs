@@ -6,7 +6,6 @@ using CineFans.Infrastructure.Repositories;
 using CineFans.Infrastructure.Interface;
 using CineFans.Domain.Entities;
 using CineFans.Infrastructure.Context;
-using CineFans.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

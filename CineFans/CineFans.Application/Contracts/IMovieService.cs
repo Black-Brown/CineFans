@@ -1,4 +1,5 @@
-﻿using CineFans.Common.Requests;
+﻿using CineFans.Common.Dtos;
+using CineFans.Common.Requests;
 using CineFans.Common.Responses;
 
 namespace CineFans.Application.Contracts
@@ -11,5 +12,6 @@ namespace CineFans.Application.Contracts
         Task<bool> UpdateAsync(UpdateMovieRequest request); // Actualizar una película
         Task<bool> DeleteAsync(int id); // Eliminar una película
         Task<bool> MovieExistsAsync(int movieId);
+        Task<List<MovieDto>> GetMoviesWithCommentsAsync();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CineFans.Application.Contracts;
+using CineFans.Common.Dtos;
 using CineFans.Common.Requests;
 using CineFans.Common.Responses;
 using CineFans.Domain.Entities;
@@ -128,6 +129,34 @@ namespace CineFans.Application.Services
         {
             var movie = await _movieRepository.GetByIdAsync(movieId);
             return movie != null;
+        }
+
+        public async Task<List<MovieDto>> GetMoviesWithCommentsAsync()
+        {
+            // Obtener películas con comentarios
+            var movies = await _movieRepository.GetMoviesWithCommentsAsync();
+
+            // Mapear las entidades Movie a MovieDto
+            var movieDtos = movies.Select(m => new MovieDto
+            {
+                MovieId = m.MovieId,
+                Title = m.Title,
+                Description = m.Description,
+                Year = m.Year,
+                Director = m.Director,
+                GenreName = m.GenreName,  // Corregido para usar GenreName
+                ImageUrl = m.ImageUrl,
+                Comments = m.Comments.Select(c => new CommentDto
+                {
+                    CommentId = c.CommentId,
+                    MovieId = c.MovieId,
+                    UserId = c.UserId,
+                    Text = c.Text,
+                    Date = c.Date
+                }).ToList()
+            }).ToList();
+
+            return movieDtos;
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using CineFans.Domain.Entities;
 using CineFans.Infrastructure.Context;
-using CineFans.Infrastructure.Interface;
-using CineFans.Infrastructure.Interfaces;
+using CineFans.Infrastructure.Interface; // Asegúrate de que tienes esta interfaz
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace CineFans.Infrastructure.Repositories
 {
@@ -15,24 +15,36 @@ namespace CineFans.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Comment comment)
+        public async Task<Comment?> GetByIdAsync(int commentId)
         {
-            await _context.Comments.AddAsync(comment);
-            await _context.SaveChangesAsync();
+            return await _context.Comments
+                .FirstOrDefaultAsync(c => c.CommentId == commentId);
         }
 
-        public async Task<List<Comment>> GetByMovieIdAsync(int movieId)
+        public async Task<List<Comment>> GetCommentsByMovieIdAsync(int movieId)
         {
             return await _context.Comments
                 .Where(c => c.MovieId == movieId)
                 .ToListAsync();
         }
 
-        public async Task<List<Comment>> GetByUserIdAsync(int userId)
+        public async Task<List<Comment>> GetCommentsByUserIdAsync(int userId)
         {
             return await _context.Comments
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
+        }
+
+        public async Task<Comment> AddAsync(Comment comment)
+        {
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+            return comment; // Ensure the method returns the added comment as required by the interface  
+        }
+
+        public async Task<List<Comment>> GetAllAsync()
+        {
+            return await _context.Comments.ToListAsync();
         }
     }
 }

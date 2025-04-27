@@ -16,6 +16,13 @@ namespace CineFans.Api.Controllers
             _movieService = movieService;
         }
 
+        [HttpGet("movies-with-comments")]
+        public async Task<IActionResult> GetMoviesWithComments()
+        {
+            var movies = await _movieService.GetMoviesWithCommentsAsync();
+            return Ok(movies);
+        }
+
         // Crear una nueva película
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateMovieRequest model)

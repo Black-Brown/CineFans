@@ -11,7 +11,6 @@ using CineFans.Infrastructure.Interface;
 using CineFans.Application.Contracts;
 using Microsoft.AspNetCore.Http.Features;
 using CineFans.Infrastructure.Context;
-using CineFans.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

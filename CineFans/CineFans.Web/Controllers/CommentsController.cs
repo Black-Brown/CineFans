@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using CineFans.Common.Dtos;
+using CineFans.Common.Requests;
 using CineFans.Common.Requests.Comment;
 using CineFans.Domain.Entities;
 using CineFans.Web.ViewModels;
@@ -21,14 +22,14 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/movie/");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comments");
             return View(comments);
         }
 
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comments/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -49,7 +50,6 @@ namespace CineFans.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Convertir el UserId de string a int  
                 if (!int.TryParse(model.UserId.ToString(), out var userId))
                 {
                     ModelState.AddModelError("", "El UserId no es válido.");
@@ -57,16 +57,15 @@ namespace CineFans.Web.Controllers
                     return View(model);
                 }
 
-                var comment = new Comment
+                var request = new CreateCommentRequest
                 {
                     Text = model.Text,
                     MovieId = model.MovieId,
-                    UserId = userId, // Asignado después de la conversión  
+                    UserId = userId
                 };
 
-                // Enviar el comentario a la API  
                 var client = _httpClientFactory.CreateClient("CineFansApi");
-                var response = await client.PostAsJsonAsync("comment", comment);
+                var response = await client.PostAsJsonAsync("comments", request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -79,15 +78,15 @@ namespace CineFans.Web.Controllers
                 }
             }
 
-            // Si el modelo no es válido, recargar los SelectLists  
             await LoadSelectLists(model);
             return View(model);
         }
 
+
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comments/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -112,7 +111,7 @@ namespace CineFans.Web.Controllers
             };
 
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PutAsJsonAsync("comment", request);
+            var response = await client.PutAsJsonAsync("comments", request);
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
@@ -126,7 +125,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comments/{id}");
 
             if (comment == null)
                 return NotFound();
@@ -139,7 +138,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.DeleteAsync($"comment/{id}");
+            var response = await client.DeleteAsync($"comments/{id}");
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
@@ -147,7 +146,7 @@ namespace CineFans.Web.Controllers
             var errorContent = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", $"Error al eliminar el comentario: {errorContent}");
 
-            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
+            var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comments/{id}");
             return View("Delete", comment);
         }
 
@@ -176,7 +175,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> GetCommentsByMovie(int movieId)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/movie/{movieId}");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comments/movie/{movieId}");
 
             if (comments == null || comments.Count == 0)
                 return NotFound($"No comments found for movie ID {movieId}.");
@@ -187,7 +186,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> GetCommentsByUser(int userId)
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/user/{userId}");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comments/user/{userId}");
 
             if (comments == null || comments.Count == 0)
                 return NotFound($"No comments found for user ID {userId}.");
