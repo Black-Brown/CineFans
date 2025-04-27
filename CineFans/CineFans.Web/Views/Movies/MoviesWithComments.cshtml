@@ -1,28 +1,42 @@
-﻿@model IEnumerable<MovieWithCommentsViewModel>
+﻿@model List<CineFans.Web.ViewModels.MovieWithCommentsViewModel>
 
-<h1>Movies with Comments</h1>
+@{
+    ViewData["Title"] = "Movies with Comments";
+}
 
-<div id="movieList">
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Welcome to CineFans</h1>
+
     @foreach (var movie in Model)
     {
-        <div class="movie-item">
-            <h3>@movie.Title</h3>
-            <p><strong>Director:</strong> @movie.Director</p>
-            <p><strong>Year:</strong> @movie.Year</p>
-            <p><strong>Genre:</strong> @movie.GenreName</p>
-            <p>@movie.Description</p>
-            <img src="@movie.ImageUrl" alt="@movie.Title" style="max-width: 200px;" />
+        <div class="card mb-4 shadow-sm">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="@movie.ImageUrl" class="img-fluid rounded-start" alt="@movie.Title" />
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">@movie.Title</h5>
+                        <p class="card-text"><strong>Director:</strong> @movie.Director</p>
+                        <p class="card-text"><strong>Year:</strong> @movie.Year</p>
+                        <p class="card-text"><strong>Genre:</strong> @movie.GenreName</p>
+                        <p class="card-text">@movie.Description</p>
+                    </div>
+                </div>
+            </div>
 
-            <h4>Comments:</h4>
-            <ul>
-                @foreach (var comment in movie.Comments)
-                {
-                    <li>
-                        <strong>User @comment.UserId:</strong> @comment.Text
-                        <br><em>(@comment.Date.ToString("g"))</em>
-                    </li>
-                }
-            </ul>
+            <div class="card-footer">
+                <h5>Comments:</h5>
+                <ul class="list-group list-group-flush">
+                    @foreach (var comment in movie.Comments)
+                    {
+                        <li class="list-group-item">
+                            <strong>User @comment.UserId:</strong> @comment.Text
+                            <br><em class="text-muted">(@comment.Date.ToString("g"))</em>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
     }
 </div>

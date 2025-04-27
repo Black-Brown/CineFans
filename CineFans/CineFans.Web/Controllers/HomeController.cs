@@ -17,10 +17,10 @@ namespace CineFans.Web.Controllers
             _movieService = movieService; // ?? Guardamos el servicio
         }
 
-        public async Task<IActionResult> Index()
+        // Redirige al controlador Movies y su acción Index (películas con comentarios)
+        public IActionResult Index()
         {
-            var moviesWithComments = await _movieService.GetMoviesWithCommentsAsync(); // ?? Llamada al servicio
-            return View(moviesWithComments); // ?? Lo mandamos a la vista
+            return RedirectToAction("Index", "Movies");  // Redirige a Movies/Index
         }
 
         public IActionResult Privacy()
