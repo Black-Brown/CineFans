@@ -1,0 +1,28 @@
+﻿@model IEnumerable<MovieWithCommentsViewModel>
+
+<h1>Movies with Comments</h1>
+
+<div id="movieList">
+    @foreach (var movie in Model)
+    {
+        <div class="movie-item">
+            <h3>@movie.Title</h3>
+            <p><strong>Director:</strong> @movie.Director</p>
+            <p><strong>Year:</strong> @movie.Year</p>
+            <p><strong>Genre:</strong> @movie.GenreName</p>
+            <p>@movie.Description</p>
+            <img src="@movie.ImageUrl" alt="@movie.Title" style="max-width: 200px;" />
+
+            <h4>Comments:</h4>
+            <ul>
+                @foreach (var comment in movie.Comments)
+                {
+                    <li>
+                        <strong>User @comment.UserId:</strong> @comment.Text
+                        <br><em>(@comment.Date.ToString("g"))</em>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>

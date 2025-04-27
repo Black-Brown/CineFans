@@ -23,6 +23,18 @@ namespace CineFans.Web.Controllers
             _uploadFolder = configuration["FileStorage:MovieUploadFolder"] ?? throw new ArgumentNullException(nameof(configuration), "Upload folder configuration is missing.");
         }
 
+        // Acción para obtener todas las películas con comentarios
+        public async Task<IActionResult> MoviesWithComments()
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var moviesWithComments = await client.GetFromJsonAsync<List<MovieWithCommentsViewModel>>("Movie/movies-with-comments"); // Llamamos a la API para obtener las películas con comentarios
+
+            if (moviesWithComments == null)
+                return NotFound();
+
+            return View(moviesWithComments); // Pasamos los datos a la vista
+        }
+
         // Obtener todas las películas
         public async Task<IActionResult> Index()
         {

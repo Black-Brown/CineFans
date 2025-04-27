@@ -21,7 +21,6 @@ builder.Services.AddDbContext<CineFansDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CineFansDbContext")
     ?? throw new InvalidOperationException("Connection string 'CineFansDbContext' not found.")));
 
-
 // Configurar otros servicios...
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
@@ -44,6 +43,7 @@ builder.Services.AddHttpClient("CineFansApi", client =>
     client.BaseAddress = new Uri("https://localhost:7263/api/");
 });
 
+
 // -------------------------------------
 // REGISTRO DE SERVICIOS PERSONALIZADOS
 // -------------------------------------
@@ -55,7 +55,6 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 
 builder.Services.Configure<FormOptions>(options =>
 {
@@ -73,13 +72,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 // Mapea controladores API
 app.MapControllers();
