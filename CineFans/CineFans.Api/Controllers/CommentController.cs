@@ -1,71 +1,42 @@
 ﻿using CineFans.Application.Contracts;
 using CineFans.Common.Dtos;
-using CineFans.Common.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CineFans.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CommentController : ControllerBase
+    public class CommentsController : ControllerBase
     {
         private readonly ICommentService _commentService;
 
-        public CommentController(ICommentService commentService)
+        public CommentsController(ICommentService commentService)
         {
             _commentService = commentService;
         }
 
-        // GET: api/Comment
-        [HttpGet]
-        public async Task<ActionResult<List<CommentDto>>> GetAll()
+        [HttpPost]
+        public async Task<IActionResult> CreateComment([FromBody] CommentDto commentDto)
         {
-            var comments = await _commentService.GetAllAsync();
+            if (commentDto == null)
+                return BadRequest();
+
+            var createdComment = await _commentService.CreateCommentAsync(commentDto);
+            return CreatedAtAction(nameof(GetCommentsByMovieId), new { movieId = createdComment.MovieId }, createdComment);
+        }
+
+        [HttpGet("movie/{movieId}")]
+        public async Task<IActionResult> GetCommentsByMovieId(int movieId)
+        {
+            var comments = await _commentService.GetCommentsByMovieIdAsync(movieId);
             return Ok(comments);
         }
 
-        // GET: api/Comment/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CommentDto>> GetById(int id)
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetCommentsByUserId(int userId)
         {
-            var comment = await _commentService.GetByIdAsync(id);
-            if (comment == null)
-                return NotFound();
-
-            return Ok(comment);
-        }
-
-        // POST: api/Comment
-        [HttpPost]
-        public async Task<ActionResult> Create(CreateCommentRequest request)
-        {
-            var result = await _commentService.CreateAsync(request);
-            if (!result)
-                return BadRequest("Error al crear el comentario.");
-
-            return Ok("Comentario creado exitosamente.");
-        }
-
-        // PUT: api/Comment
-        [HttpPut]
-        public async Task<ActionResult> Update(UpdateCommentRequest request)
-        {
-            var result = await _commentService.UpdateAsync(request);
-            if (!result)
-                return NotFound("No se pudo actualizar el comentario.");
-
-            return Ok("Comentario actualizado exitosamente.");
-        }
-
-        // DELETE: api/Comment/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var result = await _commentService.DeleteAsync(id);
-            if (!result)
-                return NotFound("No se encontró el comentario.");
-
-            return Ok("Comentario eliminado exitosamente.");
+            var comments = await _commentService.GetCommentsByUserIdAsync(userId);
+            return Ok(comments);
         }
     }
 }

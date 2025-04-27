@@ -11,7 +11,6 @@ namespace CineFans.Api.Controllers
     {
         private readonly IMovieService _movieService;
 
-        // Constructor donde inyectamos el servicio de películas
         public MovieController(IMovieService movieService)
         {
             _movieService = movieService;
@@ -22,46 +21,36 @@ namespace CineFans.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateMovieRequest model)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState); // Si el modelo no es válido, devolvemos un error
-            }
+                return BadRequest(ModelState);
 
-            // Llamamos al servicio para crear la película
             var response = await _movieService.CreateAsync(model);
 
             if (response == null)
-            {
-                return BadRequest("Error al crear la película."); // Manejo de error si la creación no fue exitosa
-            }
+                return StatusCode(500, "Error interno al crear la película.");
 
-            // Si la creación fue exitosa, devolvemos el resultado
             return CreatedAtAction(nameof(GetById), new { id = response.MovieId }, response);
         }
 
         // Obtener una película por ID
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<MovieResponse>> GetById(int id)
         {
             var movieResponse = await _movieService.GetByIdAsync(id);
 
             if (movieResponse == null)
-            {
-                return NotFound("Película no encontrada.");
-            }
+                return NotFound(new { message = "Película no encontrada." });
 
             return Ok(movieResponse);
         }
 
         // Obtener todas las películas
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<MovieResponse>>> GetAll()
         {
             var moviesResponse = await _movieService.GetAllAsync();
 
             if (moviesResponse == null || !moviesResponse.Any())
-            {
-                return NotFound("No se encontraron películas.");
-            }
+                return Ok(new List<MovieResponse>()); // Mejor devolver lista vacía
 
             return Ok(moviesResponse);
         }
@@ -71,18 +60,14 @@ namespace CineFans.Api.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateMovieRequest model)
         {
             if (id != model.MovieId)
-            {
-                return BadRequest("ID de película no coincide.");
-            }
+                return BadRequest(new { message = "El ID de la película no coincide con el de la solicitud." });
 
             var success = await _movieService.UpdateAsync(model);
 
             if (!success)
-            {
-                return NotFound("Película no encontrada.");
-            }
+                return NotFound(new { message = "Película no encontrada para actualizar." });
 
-            return NoContent(); // Devolvemos un 204 No Content para indicar que la actualización fue exitosa
+            return NoContent();
         }
 
         // Eliminar una película
@@ -92,11 +77,9 @@ namespace CineFans.Api.Controllers
             var success = await _movieService.DeleteAsync(id);
 
             if (!success)
-            {
-                return NotFound("Película no encontrada.");
-            }
+                return NotFound(new { message = "Película no encontrada para eliminar." });
 
-            return NoContent(); // Devolvemos un 204 No Content para indicar que la eliminación fue exitosa
+            return NoContent();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace CineFans.Common.Requests
+﻿namespace CineFans.Common.Requests.Comment
 {
     public class UpdateCommentRequest
     {

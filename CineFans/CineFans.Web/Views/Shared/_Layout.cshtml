@@ -1,8 +1,4 @@
-﻿@{
-    var userName = Context.Session.GetString("UserName");
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,81 +9,61 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CineFans.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CineFans.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Movies" asp-action="Index">Movies</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Genres" asp-action="Index">Gender</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="Index">Posts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Comments" asp-action="Index">Comments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Followers" asp-action="Index">Followers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Likes" asp-action="Index">Likes</a>
-                        </li>
-                    </ul>
+<body class="d-flex">
+    <div class="sidebar">
+        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+            <i class="fas fa-home"></i>
+            Home
+        </a>
+        <a class="nav-link" asp-area="" asp-controller="Movies" asp-action="Index">
+            <i class="fas fa-film"></i>
+            Movie
+        </a>
+        <a class="nav-link" asp-area="" asp-controller="Comments" asp-action="Index">
+            <i class="fas fa-comment-dots"></i>
+            Comment
+        </a>
+        <a class="nav-link" asp-area="" asp-controller="Users" asp-action="Index">
+            <i class="fas fa-user"></i>
+            User
+        </a>
 
-                    <ul class="navbar-nav">
-                        @if (!string.IsNullOrEmpty(userName))
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hola, @userName</span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Logout">Cerrar sesión</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Registrarse</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+        <hr />
+
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <div class="text-center p-2">
+                <i class="fas fa-user-circle"></i> @User.Identity.Name
+                <form asp-controller="Account" asp-action="Logout" method="post" class="mt-2">
+                    <button type="submit" class="btn btn-sm btn-danger">Logout</button>
+                </form>
             </div>
-        </nav>
-    </header>
-    <div class="container">
+        }
+        else
+        {
+            <div class="text-center p-2">
+                <a class="btn btn-sm btn-primary mb-2" asp-controller="Account" asp-action="Login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a class="btn btn-sm btn-success" asp-controller="Account" asp-action="Register">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            </div>
+        }
+    </div>
+
+    <div class="flex-grow-1 p-3">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+
+        <footer class="border-top footer text-muted mt-5">
+            <div class="container">
+                &copy; 2025 - CineFans.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CineFans.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

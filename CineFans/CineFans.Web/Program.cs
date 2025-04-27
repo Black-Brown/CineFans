@@ -10,6 +10,8 @@ using CineFans.Infrastructure.Repositories;
 using CineFans.Infrastructure.Interface;
 using CineFans.Application.Contracts;
 using Microsoft.AspNetCore.Http.Features;
+using CineFans.Infrastructure.Context;
+using CineFans.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CineFansDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CineFansDbContext")
     ?? throw new InvalidOperationException("Connection string 'CineFansDbContext' not found.")));
+
+
+// Configurar otros servicios...
+builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+
+// Soporte para sesiones
+builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
 
 // Soporte para controladores MVC + Vistas
 builder.Services.AddControllersWithViews();
@@ -44,8 +55,7 @@ builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 builder.Services.Configure<FormOptions>(options =>
@@ -70,6 +80,7 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 // Mapea controladores API
 app.MapControllers();

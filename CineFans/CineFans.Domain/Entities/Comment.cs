@@ -1,21 +1,14 @@
-﻿using System;
-
-namespace CineFans.Domain.Entities
+﻿namespace CineFans.Domain.Entities
 {
     public class Comment
     {
         public int CommentId { get; set; }
-        public int UserId { get; set; }
         public int MovieId { get; set; }
-        public int PostId { get; set; }  // Agregado
+        public int UserId { get; set; }
+        public string? Text { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public string Text { get; set; } = string.Empty;
-        public DateTime Date { get; set; } = DateTime.UtcNow;
-
-        // Relaciones de navegación
-        public User User { get; set; } = null!;
-        public Movie Movie { get; set; } = null!;
-        public Post Post { get; set; } = null!; // Agregado
+        public Movie Movie { get; set; } = new Movie();
+        public User User { get; set; } = new User();
     }
-
 }

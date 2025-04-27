@@ -1,6 +1,7 @@
-﻿using CineFans.Common.Requests;
-using CineFans.Application.Contracts;
+﻿using CineFans.Application.Contracts;
+using CineFans.Common.Requests;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace CineFans.Api.Controllers
 {
@@ -18,8 +19,21 @@ namespace CineFans.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
-            var response = await _userService.CreateUserAsync(request);
-            return CreatedAtAction(nameof(GetUserById), new { id = response.UserId }, response);
+            if (string.IsNullOrEmpty(request.Email) || !new EmailAddressAttribute().IsValid(request.Email))
+            {
+                return BadRequest("Invalid or missing email.");
+            }
+
+            var result = await _userService.CreateUserAsync(request);
+            return Ok(result);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
+        {
+            var result = await _userService.LoginAsync(request);
+            if (!result.Success) return Unauthorized(result.ErrorMessage);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -37,29 +51,20 @@ namespace CineFans.Api.Controllers
             return Ok(users);
         }
 
-        // Método para actualizar un usuario
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
-            if (id != request.UserId)
-                return BadRequest("User ID mismatch.");
-
-            var result = await _userService.UpdateUserAsync(request);
-            if (!result)
-                return NotFound();
-
-            return NoContent();
+            var updated = await _userService.UpdateUserAsync(request);
+            if (!updated) return NotFound();
+            return Ok();
         }
 
-        // Método para eliminar un usuario
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
-                return NotFound();
-
-            return NoContent();
+            var deleted = await _userService.DeleteUserAsync(id);
+            if (!deleted) return NotFound();
+            return Ok();
         }
     }
 }

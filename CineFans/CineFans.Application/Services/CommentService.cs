@@ -1,82 +1,42 @@
 ﻿using CineFans.Application.Contracts;
 using CineFans.Common.Dtos;
-using CineFans.Common.Requests;
 using CineFans.Domain.Entities;
-using CineFans.Infrastructure.Interface;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using CineFans.Infrastructure.Interfaces;
+using AutoMapper;
 
 namespace CineFans.Application.Services
 {
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
+        private readonly IMapper _mapper;
 
-        public CommentService(ICommentRepository commentRepository)
+        public CommentService(ICommentRepository commentRepository, IMapper mapper)
         {
             _commentRepository = commentRepository;
+            _mapper = mapper;
         }
 
-        public async Task<List<CommentDto>> GetAllAsync()
+        public async Task<CommentDto> CreateCommentAsync(CommentDto commentDto)
         {
-            var comments = await _commentRepository.GetAllAsync();
-            return comments.Select(c => new CommentDto
-            {
-                CommentId = c.CommentId,
-                UserId = c.UserId,
-                MovieId = c.MovieId,
-                Text = c.Text,
-                Date = c.Date
-            }).ToList();
+            var comment = _mapper.Map<Comment>(commentDto);
+            comment.CreatedAt = DateTime.UtcNow;
+
+            await _commentRepository.AddAsync(comment);
+            return _mapper.Map<CommentDto>(comment);
         }
 
-        public async Task<CommentDto?> GetByIdAsync(int id)
+        public async Task<List<CommentDto>> GetCommentsByMovieIdAsync(int movieId)
         {
-            var comment = await _commentRepository.GetByIdAsync(id);
-            if (comment == null)
-                return null;
-
-            return new CommentDto
-            {
-                CommentId = comment.CommentId,
-                UserId = comment.UserId,
-                MovieId = comment.MovieId,
-                Text = comment.Text,
-                Date = comment.Date
-            };
+            var comments = await _commentRepository.GetByMovieIdAsync(movieId);
+            return _mapper.Map<List<CommentDto>>(comments);
         }
 
-        public async Task<bool> CreateAsync(CreateCommentRequest request)
+        public async Task<List<CommentDto>> GetCommentsByUserIdAsync(int userId)
         {
-            var comment = new Comment
-            {
-                UserId = request.UserId,
-                MovieId = request.MovieId,
-                Text = request.Text,
-                Date = DateTime.UtcNow
-            };
-
-            return await _commentRepository.CreateAsync(comment);
+            var comments = await _commentRepository.GetByUserIdAsync(userId);
+            return _mapper.Map<List<CommentDto>>(comments);
         }
-
-        public async Task<bool> UpdateAsync(UpdateCommentRequest request)
-        {
-            var existing = await _commentRepository.GetByIdAsync(request.CommentId);
-            if (existing == null)
-                return false;
-
-            existing.Text = request.Text;
-            return await _commentRepository.UpdateAsync(existing);
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var comment = await _commentRepository.GetByIdAsync(id);
-            if (comment == null)
-                return false;
-
-            return await _commentRepository.DeleteAsync(comment);
-        }
-
     }
 }
+

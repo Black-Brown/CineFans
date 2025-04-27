@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using CineFans.Common.Dtos;
-using CineFans.Common.Requests;
+using CineFans.Common.Requests.Comment;
+using CineFans.Domain.Entities;
 using CineFans.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,7 +21,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("CineFansApi");
-            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>("comment");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/movie/");
             return View(comments);
         }
 
@@ -35,7 +36,6 @@ namespace CineFans.Web.Controllers
             return View(comment);
         }
 
-        // GET: Comments/Create
         public async Task<IActionResult> Create()
         {
             var viewModel = new CommentsViewModel();
@@ -47,29 +47,39 @@ namespace CineFans.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CommentsViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                await LoadSelectLists(model);
-                return View(model);
+                // Convertir el UserId de string a int  
+                if (!int.TryParse(model.UserId.ToString(), out var userId))
+                {
+                    ModelState.AddModelError("", "El UserId no es válido.");
+                    await LoadSelectLists(model);
+                    return View(model);
+                }
+
+                var comment = new Comment
+                {
+                    Text = model.Text,
+                    MovieId = model.MovieId,
+                    UserId = userId, // Asignado después de la conversión  
+                };
+
+                // Enviar el comentario a la API  
+                var client = _httpClientFactory.CreateClient("CineFansApi");
+                var response = await client.PostAsJsonAsync("comment", comment);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Details", "Movies", new { id = model.MovieId });
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", $"Error al crear el comentario: {errorContent}");
+                }
             }
 
-            var request = new CreateCommentRequest
-            {
-                UserId = model.UserId,
-                MovieId = model.MovieId,
-                Text = model.Text
-            };
-
-            var client = _httpClientFactory.CreateClient("CineFansApi");
-            var response = await client.PostAsJsonAsync("comment", request);
-
-            if (response.IsSuccessStatusCode)
-                return RedirectToAction(nameof(Index));
-
-            // Leer contenido del error desde la respuesta
-            var errorContent = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError("", $"Error al crear el comentario: {errorContent}");
-
+            // Si el modelo no es válido, recargar los SelectLists  
             await LoadSelectLists(model);
             return View(model);
         }
@@ -90,7 +100,7 @@ namespace CineFans.Web.Controllers
         public async Task<IActionResult> Edit(int id, CommentsViewModel model)
         {
             if (id != model.CommentId)
-                return NotFound();
+                return BadRequest();
 
             if (!ModelState.IsValid)
                 return View(model);
@@ -107,7 +117,9 @@ namespace CineFans.Web.Controllers
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
-            ModelState.AddModelError("", "Error al editar el comentario.");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", $"Error al editar el comentario: {errorContent}");
+
             return View(model);
         }
 
@@ -132,7 +144,9 @@ namespace CineFans.Web.Controllers
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
-            ModelState.AddModelError("", "Error al eliminar el comentario.");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", $"Error al eliminar el comentario: {errorContent}");
+
             var comment = await client.GetFromJsonAsync<CommentsViewModel>($"comment/{id}");
             return View("Delete", comment);
         }
@@ -146,7 +160,7 @@ namespace CineFans.Web.Controllers
 
             model.Users = users?.Select(u => new SelectListItem
             {
-                Value = u.Id.ToString(),
+                Value = u.UserId.ToString(),
                 Text = u.Name
             }).ToList();
 
@@ -155,6 +169,30 @@ namespace CineFans.Web.Controllers
                 Value = m.MovieId.ToString(),
                 Text = m.Title
             }).ToList();
+        }
+
+        // NUEVOS MÉTODOS 🎯
+
+        public async Task<IActionResult> GetCommentsByMovie(int movieId)
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/movie/{movieId}");
+
+            if (comments == null || comments.Count == 0)
+                return NotFound($"No comments found for movie ID {movieId}.");
+
+            return View("Index", comments);
+        }
+
+        public async Task<IActionResult> GetCommentsByUser(int userId)
+        {
+            var client = _httpClientFactory.CreateClient("CineFansApi");
+            var comments = await client.GetFromJsonAsync<List<CommentsViewModel>>($"comment/user/{userId}");
+
+            if (comments == null || comments.Count == 0)
+                return NotFound($"No comments found for user ID {userId}.");
+
+            return View("Index", comments);
         }
     }
 }

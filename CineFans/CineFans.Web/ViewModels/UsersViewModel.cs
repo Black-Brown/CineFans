@@ -1,16 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CineFans.Web.ViewModels
 {
-    public class UsersViewModel
+    public class UserViewModel
     {
-        [Key]
         public int UserId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-        public string ProfilePicture { get; set; } = string.Empty;
+        public string? Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string? Email { get; set; }
+        public string? Password { get; set; }  // Asegúrate de que este campo esté presente
         public DateTime RegistrationDate { get; set; }
     }
+
 }

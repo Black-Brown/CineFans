@@ -1,41 +1,46 @@
-﻿@model IEnumerable<CineFans.Web.ViewModels.CommentsViewModel>
+﻿@model List<CineFans.Web.ViewModels.CommentsViewModel>
 
 @{
     ViewData["Title"] = "Comments";
 }
 
-<h1 class="my-4">Comments</h1>
+<h1>Comments</h1>
 
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New Comment</a>
+    <a asp-action="Create" class="btn btn-primary">Create New Comment</a>
 </p>
 
-<div class="table-responsive">
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.UserName)</th>
-                <th>@Html.DisplayNameFor(model => model.MovieTitle)</th>
-                <th>@Html.DisplayNameFor(model => model.Text)</th>
-                <th>@Html.DisplayNameFor(model => model.Date)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<table class="table">
+    <thead>
+        <tr>
+            <th>Comment</th>
+            <th>Movie</th>
+            <th>User</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var comment in Model)
             {
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.MovieTitle)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Text)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Date)</td>
+                    <td>@comment.Text</td>
+                    <td>@comment.MovieTitle</td> <!-- asegúrate que tienes MovieTitle en el ViewModel -->
+                    <td>@comment.UserName</td>    <!-- asegúrate que tienes UserName en el ViewModel -->
                     <td>
-                        <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.CommentId">Edit</a>
-                        <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.CommentId">Details</a>
-                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CommentId">Delete</a>
+                        <a asp-action="Details" asp-route-id="@comment.CommentId" class="btn btn-info btn-sm">Details</a>
+                        <a asp-action="Edit" asp-route-id="@comment.CommentId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@comment.CommentId" class="btn btn-danger btn-sm">Delete</a>
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
-</div>
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">No comments found.</td>
+            </tr>
+        }
+    </tbody>
+</table>

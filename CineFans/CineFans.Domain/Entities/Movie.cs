@@ -34,8 +34,7 @@ namespace CineFans.Domain.Entities
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
 
-        // Navigation properties
-        public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>(); // Agregado
+        // Removed Post navigation property, since it's not being used anymore
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>(); // Keeping the relationship with Comment
     }
 }

@@ -16,27 +16,21 @@
             <input type="hidden" asp-for="CommentId" />
 
             <div class="form-group">
-                <label asp-for="PostId" class="control-label">Post ID</label>
-                <input asp-for="PostId" class="form-control" />
-                <span asp-validation-for="PostId" class="text-danger"></span>
+                <label asp-for="UserId" class="control-label">User</label>
+                <select asp-for="UserId" class="form-control" asp-items="Model.Users"></select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="UserId" class="control-label">User ID</label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
+                <label asp-for="MovieId" class="control-label">Movie</label>
+                <select asp-for="MovieId" class="form-control" asp-items="Model.Movies"></select>
+                <span asp-validation-for="MovieId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Text" class="control-label">Text</label>
                 <textarea asp-for="Text" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Date" class="control-label">Date</label>
-                <input asp-for="Date" type="date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
             </div>
 
             <div class="form-group">

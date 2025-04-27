@@ -1,5 +1,6 @@
 ﻿// En CineFans.Infrastructure.Repositories
 using CineFans.Domain.Entities;
+using CineFans.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
 public class MovieRepository : IMovieRepository

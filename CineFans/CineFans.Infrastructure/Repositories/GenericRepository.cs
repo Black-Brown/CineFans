@@ -1,4 +1,5 @@
-﻿using CineFans.Infrastructure.Interface;
+﻿using CineFans.Infrastructure.Context;
+using CineFans.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,7 +19,12 @@ namespace CineFans.Infrastructure.Repositories
 
         public async Task<List<T>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            return await LoadAllAsync();
+
+            async Task<List<T>> LoadAllAsync()
+            {
+                return await _dbSet.ToListAsync();
+            }
         }
 
         public async Task<T?> GetByIdAsync(int id)
