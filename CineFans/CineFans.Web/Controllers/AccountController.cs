@@ -1,5 +1,4 @@
-﻿using CineFans.Web.Models;
-using CineFans.Web.ViewModels;
+﻿using CineFans.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
